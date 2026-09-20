@@ -20,7 +20,7 @@ coisa — não precisa abrir cada arquivo pra lembrar como funciona.
 cd C:\Users\anthe\.myscripts\genesis
 
 # gerar/regerar o Genesis.exe (sempre que mudar algo que ele embute:
-# modules/, config/, gui/, python/, raycast-installer.exe)
+# modules/, config/, gui/, raycast-installer.exe)
 .\build.ps1
 
 # rodar o instalador de verdade (com janela, WebView2)
@@ -72,7 +72,7 @@ WinForms puro.
 ## O `Genesis.exe` é um arquivo único
 
 Não precisa carregar pasta nenhuma junto: `modules/`, `config/`,
-`gui/wizard/`, `gui/webview2/`, os scripts de `python/` e o
+`gui/wizard/`, `gui/webview2/` e o
 `raycast-installer.exe` **entram embutidos** no exe, num payload comprimido
 (zip → gzip → base64) gerado por `scripts/build-payload.ps1`. Na primeira
 execução o `gui/GenesisBootstrap.ps1` descompacta isso em
@@ -86,8 +86,6 @@ recompilar o exe extrai uma pasta nova — as antigas são descartadas, mas os
   `presetup.json` ou `raycast-installer.exe` na mesma pasta do `Genesis.exe`,
   eles ganham dos defaults embutidos — dá pra ajustar config e atualizar o
   Raycast sem recompilar nada.
-- **`python\.venv` fica fora do payload** — o próprio setup cria o venv na
-  pasta de cache quando precisa (`modules\Invoke-PythonScripts.ps1`).
 - **Rodar da pasta do projeto continua igual**: sem payload, `$Root` é a
   própria pasta (`.\genesis.ps1` no console, `.\gui\WizardHost.ps1` com
   janela). `.build/` e `Genesis.exe` são gerados e não versionados.
@@ -138,18 +136,12 @@ genesis/
 │   ├── Install-WinUtil.ps1        <- baixa o WinUtil (Chris Titus Tech) pra Area de Trabalho
 │   ├── Setup-PowerShellProfile.ps1  <- copia o profile pro $PROFILE; se a pasta de projetos foi informada, reescreve o `$project_path = $HOME` do `goto`/`g` pra esse caminho
 │   ├── Install-TheroGlobal.ps1    <- roda `python thero.py` pra instalar skills + CLAUDE.md + comando `thero`
-│   ├── Invoke-PythonScripts.ps1   <- venv em python/.venv, instala requirements.txt
 │   ├── Set-DefaultBrowserAndSearch.ps1
 │   ├── Setup-SearchRedirect.ps1   <- MSEdgeRedirect (Search/Widgets/News abrirem no navegador padrao)
 │   ├── Setup-Bluetooth.ps1
 │   ├── Setup-HomeAssistant.ps1    <- registra/liga a VM existente no VirtualBox
 │   ├── Register-WingetUpgradeTask.ps1
 │   └── Enable-Autologin.ps1       <- off por padrao em tasks.json
-│
-├── python/
-│   ├── requirements.txt / common.py
-│   ├── install_nvidia_app.py
-│   └── install_qoder.py
 │
 ├── docs/
 │   └── design-assets-prompts.md  <- prompts pra regerar o icone do .exe / assets visuais (opcional)
@@ -227,13 +219,13 @@ de `config/winget-apps.json` — sem isso a tela dele fica sem ícone/versão.
   "RestorePoint": true, "ExecutionPolicy": true, "EnableWSL": true,
   "WingetApps": true, "GitHubSsh": true, "Projects": true,
   "Raycast": true, "ClaudeCode": true, "WinUtil": true,
-  "PowerShellProfile": true, "TheroGlobal": true, "NvidiaApp": true, "Qoder": true,
+  "PowerShellProfile": true, "TheroGlobal": true,
   "DefaultBrowserAndSearch": true, "SearchRedirect": true, "Bluetooth": true,
   "HomeAssistant": true, "WingetUpgradeTask": true, "Autologin": false
 }
 ```
 
-**`config/winget-apps.json`** — 68 apps reais em 12 categorias (Terminal
+**`config/winget-apps.json`** — 70 apps reais em 12 categorias (Terminal
 & Sistema, Navegadores, Comunicação, Produtividade, Mídia, Streaming,
 Desenvolvimento, Infraestrutura & Virtualização, Utilitários, Torrent,
 Acesso Remoto, Jogos). Desligados por padrão: Firefox, Opera, Windhawk,
@@ -261,13 +253,12 @@ via `--recurse-submodules`), `hunteradeck` (pasta local `huntera-launcher`),
 9. WinUtil (baixa pra Área de Trabalho, não roda — é interativo)
 10. Profile do PowerShell
 11. thero — instalação global (só se "Claude Code" estiver marcado)
-12. NVIDIA App e Qoder (Python, scraping da página oficial)
-13. Chrome como navegador/buscador padrão
-14. Windows Search abrir no navegador padrão (MSEdgeRedirect)
-15. Bluetooth auto-reconnect
-16. Home Assistant — sobe a VM existente no VirtualBox
-17. Tarefa agendada semanal: `winget upgrade --all`
-18. Autologin (off por padrão)
+12. Chrome como navegador/buscador padrão
+13. Windows Search abrir no navegador padrão (MSEdgeRedirect)
+14. Bluetooth auto-reconnect
+15. Home Assistant — sobe a VM existente no VirtualBox
+16. Tarefa agendada semanal: `winget upgrade --all`
+17. Autologin (off por padrão)
 
 ## Depois de rodar (checklist manual)
 
@@ -301,7 +292,7 @@ via `--recurse-submodules`), `hunteradeck` (pasta local `huntera-launcher`),
 ## Limitações conhecidas (sem solução scriptável confiável)
 
 - **Pareamento inicial de Bluetooth**: precisa de confirmação/PIN na tela pelo menos uma vez por dispositivo.
-- **NVIDIA App / Qoder / MSEdgeRedirect**: dependem de scraping/API de terceiros. Se a página mudar, o script para com erro claro em vez de instalar algo errado.
+- **MSEdgeRedirect**: depende de scraping/API de terceiros. Se a página mudar, o script para com erro claro em vez de instalar algo errado.
 - **`gh auth login`**: precisa de confirmação no navegador — não dá pra automatizar sem guardar senha/token no disco.
 - **Backup automático** (OneDrive/Backblaze): avaliado e descartado — KFM silencioso do OneDrive só funciona em conta corporativa; numa pessoal sempre pede login manual.
 - **Descrições dos apps**: escritas à mão em `gui/wizard/app.js` (`APP_DESCRIPTIONS`) — winget só tem texto em inglês, de tamanho/tom muito inconsistente entre fornecedores, pra usar direto numa interface em português.

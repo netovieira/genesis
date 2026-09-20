@@ -20,9 +20,6 @@ function Get-GenesisStepDefinitions {
         WinUtil                 = 'WinUtil (atalho na Area de Trabalho)'
         PowerShellProfile       = 'Profile do PowerShell'
         TheroGlobal             = 'thero (instalacao global)'
-        PythonEnv               = 'Ambiente Python'
-        NvidiaApp               = 'NVIDIA App'
-        Qoder                   = 'Qoder'
         DefaultBrowserAndSearch = 'Chrome como navegador/buscador padrao'
         SearchRedirect          = 'Windows Search abrir no navegador padrao'
         Bluetooth               = 'Bluetooth auto-reconnect'
@@ -35,10 +32,7 @@ function Get-GenesisStepDefinitions {
     $list = @()
     foreach ($key in $defs.Keys) {
         $enabled = $true
-        if ($key -eq 'PythonEnv') {
-            $enabled = [bool](($Tasks.NvidiaApp) -or ($Tasks.Qoder) -or ($Tasks.HomeAssistant))
-        }
-        elseif ($Tasks.PSObject.Properties.Name -contains $key) {
+        if ($Tasks.PSObject.Properties.Name -contains $key) {
             $enabled = [bool]$Tasks.$key
         }
         if ($enabled) {
@@ -60,7 +54,6 @@ function Invoke-GenesisPipeline {
     )
 
     $results = [ordered]@{}
-    $pythonExe = $null
 
     # Pasta de projetos informada na Revisao (config/projects-folder.json) -
     # usada tanto pro clone (Set-ProjectsFolder) quanto pra reescrever o
@@ -134,23 +127,6 @@ function Invoke-GenesisPipeline {
     if (Get-Task2 'TheroGlobal') {
         $results['TheroGlobal'] = Invoke-Step -Key 'TheroGlobal' -Name 'thero (instalacao global)' -Action {
             Install-TheroGlobal
-        }
-    }
-
-    if ((Get-Task2 'NvidiaApp') -or (Get-Task2 'Qoder')) {
-        $results['PythonEnv'] = Invoke-Step -Key 'PythonEnv' -Name 'Ambiente Python' -Action {
-            $script:pipelinePythonExe = Initialize-PythonEnv -PythonDir (Join-Path $Root 'python')
-        }
-        $pythonExe = $script:pipelinePythonExe
-    }
-    if ($pythonExe -and (Get-Task2 'NvidiaApp')) {
-        $results['NvidiaApp'] = Invoke-Step -Key 'NvidiaApp' -Name 'NVIDIA App' -Action {
-            Invoke-PythonScript -PythonExe $pythonExe -ScriptPath (Join-Path $Root 'python\install_nvidia_app.py')
-        }
-    }
-    if ($pythonExe -and (Get-Task2 'Qoder')) {
-        $results['Qoder'] = Invoke-Step -Key 'Qoder' -Name 'Qoder' -Action {
-            Invoke-PythonScript -PythonExe $pythonExe -ScriptPath (Join-Path $Root 'python\install_qoder.py')
         }
     }
 

@@ -79,6 +79,7 @@ const APP_DESCRIPTIONS = {
   'LeNgocKhoa.Laragon': 'Ambiente de dev local (Apache/Nginx, MySQL, PHP, Node) — sobe um projeto em minutos.',
   'Google.Antigravity': 'IDE agêntica do Google — codifica com IA operando o editor, terminal e navegador.',
   'DevToys-app.DevToys': 'Canivete suíço de dev: JSON, regex, base64, hash, diff e mais, tudo offline.',
+  'Alibaba.Qoder': 'IDE com IA integrada — autocompletar, chat e agentes direto no editor.',
   'Docker.DockerDesktop': 'Roda containers Docker no Windows — a base de ambientes de dev reproduzíveis.',
   'Oracle.VirtualBox': 'Virtualização gratuita — roda outro sistema operacional dentro de uma janela.',
   'Canonical.Ubuntu.2204': 'Distribuição Linux completa rodando nativamente dentro do Windows via WSL.',
@@ -87,6 +88,7 @@ const APP_DESCRIPTIONS = {
   'RevoUninstaller.RevoUninstaller': 'Desinstala programas por completo, limpando registro e arquivos que sobram.',
   'ShareX.ShareX': 'Captura de tela e gravação com anotação, upload automático incluso.',
   'Guru3D.Afterburner': 'Overclock e monitoramento de GPU — mostra FPS e temperatura em jogo.',
+  'XP8CLZL93F5Z4P': 'App oficial da NVIDIA — drivers, otimização de jogos e captura de tela.',
   'SumatraPDF.SumatraPDF': 'Leitor de PDF leve e rápido, abre também ePub e quadrinhos (CBZ/CBR).',
   'voidtools.Everything': 'Busca de arquivos instantânea no Windows inteiro — indexa e acha em milissegundos.',
   'Bitwarden.Bitwarden': 'Gerenciador de senhas gratuito e open-source, sincronizado entre todos os dispositivos.',
@@ -118,7 +120,7 @@ const TASK_GROUPS = [
   },
   {
     title: 'Ferramentas',
-    keys: ['ClaudeCode', 'PowerShellProfile', 'NvidiaApp', 'Qoder'],
+    keys: ['ClaudeCode', 'PowerShellProfile'],
   },
   {
     title: 'Navegador & Rede',
@@ -140,8 +142,6 @@ const TASK_META = {
   Projects: { label: 'Clonar projetos', desc: 'Cria ~/projects e clona os repositórios configurados.' },
   ClaudeCode: { label: 'Claude Code', desc: 'Instala o Claude Code (irm https://claude.ai/install.ps1).' },
   PowerShellProfile: { label: 'Profile do PowerShell', desc: 'Restaura seu Microsoft.PowerShell_profile.ps1 pessoal.' },
-  NvidiaApp: { label: 'NVIDIA App', desc: 'Instala o app oficial da NVIDIA (drivers e utilitários) — pega a versão mais recente direto do site.' },
-  Qoder: { label: 'Qoder', desc: 'Instala a IDE Qoder (assistida por IA) — pega a versão mais recente direto do site.' },
   DefaultBrowserAndSearch: { label: 'Chrome como padrão', desc: 'Define Chrome como navegador padrão e Google como buscador.' },
   SearchRedirect: { label: 'Busca do Windows → navegador padrão', desc: 'Instala o MSEdgeRedirect pra Search/Widgets/News pararem de forçar o Edge.' },
   Bluetooth: { label: 'Bluetooth auto-reconnect', desc: 'Garante que dispositivos já pareados reconectem sozinhos.' },
@@ -306,7 +306,7 @@ const MOCK_CONFIG = {
   tasks: {
     RestorePoint: true, ExecutionPolicy: true, EnableWSL: true, GitHubSsh: true,
     Projects: true, Raycast: true, ClaudeCode: true, WinUtil: true,
-    PowerShellProfile: true, TheroGlobal: true, NvidiaApp: true, Qoder: true,
+    PowerShellProfile: true, TheroGlobal: true,
     DefaultBrowserAndSearch: true, SearchRedirect: true, Bluetooth: true,
     HomeAssistant: true, WingetUpgradeTask: true, AutoBackup: false, Autologin: false,
   },

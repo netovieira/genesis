@@ -3,14 +3,13 @@
     Gera .build/payload.ps1 - o pacote embutido do Genesis.exe.
 
     O Genesis.exe compilado e um arquivo UNICO: ele nao precisa de modules/,
-    config/, gui/ nem python/ do lado dele. Este script junta tudo o que o
+    config/ nem gui/ do lado dele. Este script junta tudo o que o
     pipeline e a interface precisam em tempo de execucao num zip, comprime
     (gzip) e grava como base64 num here-string do PowerShell. O build.ps1
     concatena esse arquivo + gui/GenesisBootstrap.ps1 + gui/WizardHost.ps1
     pra compilar o exe (ver gui/GenesisBootstrap.ps1 pra extracao em runtime).
 
     Ficam FORA do payload (gerado em runtime ou coisa de desenvolvimento):
-      - python/.venv e __pycache__ (o proprio setup recria o venv)
       - logs/, .build/, Genesis.exe, README/PRODUCT/DESIGN/docs/scripts
 #>
 
@@ -26,7 +25,6 @@ $includeDirs = @(
     'config'
     'gui\wizard'
     'gui\webview2'
-    'python'
 )
 
 # Arquivos soltos que o pipeline usa direto na raiz de $Root.

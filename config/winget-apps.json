@@ -318,6 +318,15 @@
     "homepage": "https://devtoys.app/"
   },
   {
+    "id": "Alibaba.Qoder",
+    "label": "Qoder",
+    "category": "Desenvolvimento",
+    "default": true,
+    "version": "1.106.3",
+    "updated": "",
+    "homepage": "https://qoder.com/download"
+  },
+  {
     "id": "Docker.DockerDesktop",
     "label": "Docker Desktop",
     "category": "Infraestrutura & Virtualizacao",
@@ -388,6 +397,16 @@
     "version": "4.6.6",
     "updated": "2025-09-29",
     "homepage": "https://www.guru3d.com/"
+  },
+  {
+    "id": "XP8CLZL93F5Z4P",
+    "label": "NVIDIA App",
+    "category": "Utilitarios",
+    "default": true,
+    "source": "msstore",
+    "version": "Unknown",
+    "updated": "",
+    "homepage": "https://www.nvidia.com/en-us/software/nvidia-app/"
   },
   {
     "id": "SumatraPDF.SumatraPDF",
