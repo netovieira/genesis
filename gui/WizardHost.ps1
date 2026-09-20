@@ -141,7 +141,19 @@ $form.Add_Shown({ [NativeDrag]::RoundCorners($form.Handle) })
 # esconde a janela inteira e mostra um icone no tray; qualquer clique nele
 # (ou o fim da instalacao, no timer 'Done' mais abaixo) restaura a janela.
 $script:trayIcon = New-Object System.Windows.Forms.NotifyIcon
-$script:trayIcon.Icon = if ($form.Icon) { $form.Icon } else { [System.Drawing.SystemIcons]::Application }
+# Instancia PROPRIA de Icon, nao reaproveita $form.Icon: os dois
+# compartilhando o mesmo objeto Icon e uma causa conhecida do
+# Shell_NotifyIcon falhar CALADO (sem excecao .NET nenhuma - o icone so
+# nunca aparece, nem escondido) quando o handle GDI+ e compartilhado entre
+# a janela e o NotifyIcon.
+$script:trayIconIcon = $null
+try {
+    $iconPathTray = Join-Path $Root 'gui\Genesis.ico'
+    if (Test-Path $iconPathTray) { $script:trayIconIcon = New-Object System.Drawing.Icon($iconPathTray) }
+}
+catch { }
+if (-not $script:trayIconIcon) { $script:trayIconIcon = [System.Drawing.SystemIcons]::Application }
+$script:trayIcon.Icon = $script:trayIconIcon
 $script:trayIcon.Text = 'Genesis - instalando...'
 $script:trayIcon.Visible = $false
 function Show-GenesisWindow {
@@ -469,16 +481,18 @@ function Handle-Message {
         'window-minimize' { $form.WindowState = 'Minimized' }
         'window-tray' {
             $script:trayIcon.Visible = $true
-            # Primeiro icone de bandeja que o Genesis mostra nesta maquina:
-            # o Windows costuma jogar icone novo direto no overflow ("^" /
-            # icones ocultos), nao na barra visivel - sem aviso, some sem
-            # rastro nenhum. O balloon aparece flutuando perto da bandeja
-            # (ou do "^") independente de estar visivel ou escondido.
             try {
-                $script:trayIcon.ShowBalloonTip(6000, 'Genesis', 'Instalando em segundo plano. Clique no icone (pode estar em "Mostrar icones ocultos", a seta ^ perto do relogio) pra abrir de novo.', [System.Windows.Forms.ToolTipIcon]::Info)
+                $script:trayIcon.ShowBalloonTip(6000, 'Genesis', 'Instalando em segundo plano. Clique no icone da bandeja (ou "Mostrar icones ocultos", a seta ^ perto do relogio) pra abrir de novo.', [System.Windows.Forms.ToolTipIcon]::Info)
             }
             catch { }
-            $form.Hide()
+            # NAO usa $form.Hide(): isso tira a janela da barra de tarefas
+            # por completo, deixando o icone da bandeja como UNICA forma de
+            # voltar - se ele falhar silenciosamente (Shell_NotifyIcon pode
+            # falhar sem lancar excecao .NET nenhuma), o usuario fica sem
+            # nenhum jeito de recuperar a janela. Minimizado, ela some da
+            # tela mas continua um botao normal na barra de tarefas -
+            # sempre tem como voltar, com ou sem o icone do tray funcionando.
+            $form.WindowState = 'Minimized'
         }
         'window-drag' {
             [NativeDrag]::ReleaseCapture() | Out-Null

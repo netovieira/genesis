@@ -42,7 +42,11 @@ function Get-GenesisStepDefinitions {
             $enabled = [bool]$Tasks.$key
         }
         if ($enabled) {
-            $list += [pscustomobject]@{ Key = $key; Label = $defs[$key] }
+            # minusculo pra bater com o resto do JSON que o app.js consome
+            # (id/label/category etc, tudo minusculo) - "Key"/"Label" com
+            # maiuscula inicial virava "undefined" em toda linha de "Outras
+            # etapas" (JSON e case-sensitive, JS lia s.key/s.label).
+            $list += [pscustomobject]@{ key = $key; label = $defs[$key] }
         }
     }
     return $list
