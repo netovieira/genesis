@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "genesis/gui/wizard/style.css"
+        ],
+        "createdAt": "2026-09-20T07:04:11.320Z",
+        "reason": "pre-existing .text-gradient class, app's established signature motif tied to Genesis's own icon gradient (genesis-icon-app.svg) - used consistently across every screen's key heading word, not decorative filler added by this session"
+      }
+    ]
+  }
+}

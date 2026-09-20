@@ -1,0 +1,31 @@
+- winget
+winget install -e --id WhatsApp.WhatsApp.Beta
+winget install -e --id Microsoft.PowerToys
+winget install -e --id OpenJS.NodeJS
+winget install -e --id GitHub.cli
+
+- ninite
+ninite-downloader.exe
+Contem:
+- Firefox
+- Chrome
+- Python
+- Python 3
+- Python x64 3
+- 7-Zip
+- Steam
+- Revo
+- qBittorrent
+- K-Lite Codecs
+- Git
+- Epic Games Launcher
+- Discord
+- iTunes
+- Visual Studio Code
+- AnyDesk
+- TeamViewer 15
+
+- raycast
+raycast-installer.exe
+
+

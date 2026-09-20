@@ -1,0 +1,428 @@
+[
+  {
+    "id": "Starship.Starship",
+    "label": "Starship (prompt)",
+    "category": "Terminal & Sistema",
+    "default": true,
+    "version": "1.26.0",
+    "updated": "2026-06-28",
+    "homepage": "https://starship.rs/"
+  },
+  {
+    "id": "Microsoft.PowerToys",
+    "label": "PowerToys",
+    "category": "Terminal & Sistema",
+    "default": true,
+    "version": "0.101.2362.0",
+    "updated": "2026-08-25",
+    "homepage": "https://github.com/microsoft/PowerToys"
+  },
+  {
+    "id": "UnifiedIntents.UnifiedRemote",
+    "label": "Unified Remote",
+    "category": "Terminal & Sistema",
+    "default": true,
+    "version": "3.13.0",
+    "updated": "2023-02-10",
+    "homepage": "https://www.unifiedremote.com/download"
+  },
+  {
+    "id": "RamenSoftware.Windhawk",
+    "label": "Windhawk",
+    "category": "Terminal & Sistema",
+    "default": false,
+    "version": "1.7.3",
+    "updated": "2025-12-09",
+    "homepage": "https://windhawk.net/"
+  },
+  {
+    "id": "Google.Chrome",
+    "label": "Google Chrome",
+    "category": "Navegadores",
+    "default": true,
+    "version": "153.0.8010.53",
+    "updated": "2026-09-17",
+    "homepage": "https://www.google.com/chrome/"
+  },
+  {
+    "id": "Mozilla.Firefox",
+    "label": "Firefox",
+    "category": "Navegadores",
+    "default": false,
+    "version": "156.0",
+    "updated": "2026-09-15",
+    "homepage": "https://www.mozilla.org/firefox/"
+  },
+  {
+    "id": "Opera.Opera",
+    "label": "Opera",
+    "category": "Navegadores",
+    "default": false,
+    "version": "136.0.6008.22",
+    "updated": "2026-09-17",
+    "homepage": "https://www.opera.com/browsers/opera"
+  },
+  {
+    "id": "9NBDXK71NK08",
+    "label": "WhatsApp Beta",
+    "category": "Comunicacao & Produtividade",
+    "default": true,
+    "source": "msstore",
+    "version": "Unknown",
+    "updated": "",
+    "homepage": "https://www.whatsapp.com"
+  },
+  {
+    "id": "Discord.Discord",
+    "label": "Discord",
+    "category": "Comunicacao & Produtividade",
+    "default": true,
+    "version": "1.0.9258",
+    "updated": "2026-09-14",
+    "homepage": "https://discord.com/download"
+  },
+  {
+    "id": "Notion.Notion",
+    "label": "Notion",
+    "category": "Comunicacao & Produtividade",
+    "default": true,
+    "version": "7.34.0",
+    "updated": "2026-09-14",
+    "homepage": "https://www.notion.so/"
+  },
+  {
+    "id": "Obsidian.Obsidian",
+    "label": "Obsidian",
+    "category": "Comunicacao & Produtividade",
+    "default": true,
+    "version": "1.13.7",
+    "updated": "2026-08-12",
+    "homepage": "https://obsidian.md/"
+  },
+  {
+    "id": "Microsoft.Office",
+    "label": "Microsoft Office",
+    "category": "Comunicacao & Produtividade",
+    "default": true,
+    "version": "16.0.20228.20124",
+    "updated": "2026-08-11",
+    "homepage": "https://www.office.com/"
+  },
+  {
+    "id": "Spotify.Spotify",
+    "label": "Spotify",
+    "category": "Midia",
+    "default": true,
+    "version": "1.3.1.234.g59d6bf59",
+    "updated": "2026-09-17",
+    "homepage": "https://www.spotify.com/download/windows/"
+  },
+  {
+    "id": "Apple.iTunes",
+    "label": "iTunes",
+    "category": "Midia",
+    "default": true,
+    "version": "12.13.11.1",
+    "updated": "2026-03-04",
+    "homepage": "https://www.apple.com/itunes/"
+  },
+  {
+    "id": "CodecGuide.K-LiteCodecPack.Standard",
+    "label": "K-Lite Codec Pack",
+    "category": "Midia",
+    "default": true,
+    "version": "20.0.0",
+    "updated": "2026-09-17",
+    "homepage": "https://www.codecguide.com"
+  },
+  {
+    "id": "9WZDNCRFJ3TJ",
+    "label": "Netflix",
+    "category": "Streaming",
+    "default": true,
+    "source": "msstore",
+    "version": "Unknown",
+    "updated": "",
+    "homepage": "https://www.netflix.com/"
+  },
+  {
+    "id": "9P6RC76MSMMJ",
+    "label": "Amazon Prime Video",
+    "category": "Streaming",
+    "default": false,
+    "source": "msstore",
+    "version": "Unknown",
+    "updated": "",
+    "homepage": "https://www.primevideo.com/"
+  },
+  {
+    "id": "OpenJS.NodeJS",
+    "label": "Node.js",
+    "category": "Desenvolvimento",
+    "default": true,
+    "version": "26.7.0",
+    "updated": "2026-08-05",
+    "homepage": "https://nodejs.org/"
+  },
+  {
+    "id": "Git.Git",
+    "label": "Git",
+    "category": "Desenvolvimento",
+    "default": true,
+    "version": "2.55.0.3",
+    "updated": "2026-07-14",
+    "homepage": "https://git-scm.com"
+  },
+  {
+    "id": "GitHub.cli",
+    "label": "GitHub CLI",
+    "category": "Desenvolvimento",
+    "default": true,
+    "version": "2.101.0",
+    "updated": "2026-09-15",
+    "homepage": "https://cli.github.com/"
+  },
+  {
+    "id": "Microsoft.VisualStudioCode",
+    "label": "Visual Studio Code",
+    "category": "Desenvolvimento",
+    "default": true,
+    "version": "1.138.0",
+    "updated": "2026-09-15",
+    "homepage": "https://code.visualstudio.com/"
+  },
+  {
+    "id": "Python.Python.3.13",
+    "label": "Python 3.13",
+    "category": "Desenvolvimento",
+    "default": true,
+    "version": "3.13.15",
+    "updated": "2026-08-05",
+    "homepage": "https://www.python.org/"
+  },
+  {
+    "id": "Postman.Postman",
+    "label": "Postman",
+    "category": "Desenvolvimento",
+    "default": true,
+    "version": "12.28.6",
+    "updated": "2026-09-18",
+    "homepage": "https://www.postman.com/downloads/"
+  },
+  {
+    "id": "Insomnia.Insomnia",
+    "label": "Insomnia",
+    "category": "Desenvolvimento",
+    "default": false,
+    "version": "13.2.0",
+    "updated": "2026-08-25",
+    "homepage": "https://insomnia.rest/"
+  },
+  {
+    "id": "pnpm.pnpm",
+    "label": "pnpm",
+    "category": "Desenvolvimento",
+    "default": true,
+    "version": "12.4.2",
+    "updated": "2026-09-15",
+    "homepage": "https://pnpm.io/"
+  },
+  {
+    "id": "Yarn.Yarn",
+    "label": "Yarn",
+    "category": "Desenvolvimento",
+    "default": false,
+    "version": "1.22.22",
+    "updated": "2024-05-24",
+    "homepage": "https://yarnpkg.com/"
+  },
+  {
+    "id": "Docker.DockerDesktop",
+    "label": "Docker Desktop",
+    "category": "Infraestrutura & Virtualizacao",
+    "default": true,
+    "version": "4.91.0",
+    "updated": "2026-09-12",
+    "homepage": "https://www.docker.com/products/docker-desktop"
+  },
+  {
+    "id": "Oracle.VirtualBox",
+    "label": "VirtualBox",
+    "category": "Infraestrutura & Virtualizacao",
+    "default": true,
+    "version": "7.2.18",
+    "updated": "2026-09-15",
+    "homepage": "https://www.virtualbox.org/"
+  },
+  {
+    "id": "Canonical.Ubuntu.2204",
+    "label": "Ubuntu 22.04 (WSL)",
+    "category": "Infraestrutura & Virtualizacao",
+    "default": true,
+    "version": "2204.2.47.0",
+    "updated": "",
+    "homepage": "https://ubuntu.com/desktop/wsl"
+  },
+  {
+    "id": "Tailscale.Tailscale",
+    "label": "Tailscale",
+    "category": "Infraestrutura & Virtualizacao",
+    "default": true,
+    "version": "1.102.4",
+    "updated": "2026-09-10",
+    "homepage": "https://tailscale.com/download"
+  },
+  {
+    "id": "7zip.7zip",
+    "label": "7-Zip",
+    "category": "Utilitarios",
+    "default": true,
+    "version": "26.03",
+    "updated": "2026-09-03",
+    "homepage": "https://7-zip.org/download.html"
+  },
+  {
+    "id": "RevoUninstaller.RevoUninstaller",
+    "label": "Revo Uninstaller",
+    "category": "Utilitarios",
+    "default": true,
+    "version": "2.1.7",
+    "updated": "2020-07-21",
+    "homepage": "https://www.revouninstaller.com/products/revo-uninstaller-free/"
+  },
+  {
+    "id": "ShareX.ShareX",
+    "label": "ShareX",
+    "category": "Utilitarios",
+    "default": true,
+    "version": "21.0.0",
+    "updated": "2026-07-03",
+    "homepage": "https://getsharex.com/"
+  },
+  {
+    "id": "Guru3D.Afterburner",
+    "label": "MSI Afterburner",
+    "category": "Utilitarios",
+    "default": true,
+    "version": "4.6.6",
+    "updated": "2025-09-29",
+    "homepage": "https://www.guru3d.com/"
+  },
+  {
+    "id": "SumatraPDF.SumatraPDF",
+    "label": "SumatraPDF (leitor de PDF)",
+    "category": "Utilitarios",
+    "default": false,
+    "version": "3.6.1",
+    "updated": "2026-04-06",
+    "homepage": "https://github.com/sumatrapdfreader/sumatrapdf"
+  },
+  {
+    "id": "qBittorrent.qBittorrent",
+    "label": "qBittorrent",
+    "category": "Torrent",
+    "default": true,
+    "version": "5.2.3",
+    "updated": "2026-07-07",
+    "homepage": "https://www.qbittorrent.org/"
+  },
+  {
+    "id": "Transmission.Transmission",
+    "label": "Transmission",
+    "category": "Torrent",
+    "default": false,
+    "version": "4.1.3",
+    "updated": "2026-06-30",
+    "homepage": "https://transmissionbt.com/"
+  },
+  {
+    "id": "DelugeTeam.Deluge",
+    "label": "Deluge",
+    "category": "Torrent",
+    "default": false,
+    "version": "2.2.0",
+    "updated": "",
+    "homepage": "https://deluge-torrent.org"
+  },
+  {
+    "id": "AnyDesk.AnyDesk",
+    "label": "AnyDesk",
+    "category": "Acesso Remoto",
+    "default": false,
+    "version": "9.7.15",
+    "updated": "2026-08-17",
+    "homepage": "https://anydesk.com/"
+  },
+  {
+    "id": "TeamViewer.TeamViewer",
+    "label": "TeamViewer",
+    "category": "Acesso Remoto",
+    "default": false,
+    "version": "15.81.6",
+    "updated": "2026-09-03",
+    "homepage": "https://www.teamviewer.com/en/download/windows/"
+  },
+  {
+    "id": "Valve.Steam",
+    "label": "Steam",
+    "category": "Jogos",
+    "default": false,
+    "version": "2.10.91.91",
+    "updated": "2024-05-20",
+    "homepage": "https://store.steampowered.com/about/"
+  },
+  {
+    "id": "EpicGames.EpicGamesLauncher",
+    "label": "Epic Games Launcher",
+    "category": "Jogos",
+    "default": false,
+    "version": "1.3.193.0",
+    "updated": "",
+    "homepage": "https://epicgames.com/download"
+  },
+  {
+    "id": "Blizzard.BattleNet",
+    "label": "Battle.net",
+    "category": "Jogos",
+    "default": false,
+    "version": "1.19.3.3219",
+    "updated": "",
+    "homepage": "https://battle.net"
+  },
+  {
+    "id": "ElectronicArts.EADesktop",
+    "label": "EA App",
+    "category": "Jogos",
+    "default": false,
+    "version": "13.791.0.6304",
+    "updated": "2026-09-15",
+    "homepage": "https://www.ea.com/ea-app"
+  },
+  {
+    "id": "Mojang.MinecraftLauncher",
+    "label": "Minecraft Launcher",
+    "category": "Jogos",
+    "default": true,
+    "version": "2.0.0.0",
+    "updated": "",
+    "homepage": "https://www.minecraft.net/"
+  },
+  {
+    "id": "Overwolf.CurseForge",
+    "label": "CurseForge",
+    "category": "Jogos",
+    "default": false,
+    "version": "0.220.1-9343",
+    "updated": "",
+    "homepage": "https://curseforge.overwolf.com/"
+  },
+  {
+    "id": "ebkr.r2modman",
+    "label": "Thunderstore (r2modman)",
+    "category": "Jogos",
+    "default": false,
+    "version": "3.2.19",
+    "updated": "2026-08-21",
+    "homepage": "https://github.com/ebkr/r2modmanPlus"
+  }
+]

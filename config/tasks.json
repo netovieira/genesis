@@ -1,0 +1,22 @@
+{
+  "RestorePoint": true,
+  "ExecutionPolicy": true,
+  "EnableWSL": true,
+  "WingetApps": true,
+  "GitHubSsh": true,
+  "Projects": true,
+  "Raycast": true,
+  "ClaudeCode": true,
+  "WinUtil": true,
+  "PowerShellProfile": true,
+  "TheroGlobal": true,
+  "NvidiaApp": true,
+  "Qoder": true,
+  "DefaultBrowserAndSearch": true,
+  "SearchRedirect": true,
+  "Bluetooth": true,
+  "HomeAssistant": true,
+  "WingetUpgradeTask": true,
+  "AutoBackup": false,
+  "Autologin": false
+}

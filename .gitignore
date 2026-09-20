@@ -1,0 +1,8 @@
+logs/
+python/.venv/
+python/__pycache__/
+Genesis.exe
+dist/
+presetup.json
+.build/
+.smoke.*.log

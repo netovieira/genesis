@@ -1,0 +1,9 @@
+{
+  "Mode": "vm",
+  "VdiPath": "",
+  "VmName": "HomeAssistant",
+  "MemoryMb": 2048,
+  "Cpus": 2,
+  "HostPort": 8123,
+  "BackupPath": ""
+}
