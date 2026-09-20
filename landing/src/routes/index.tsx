@@ -120,7 +120,7 @@ function Index() {
       <section className="hero shell">
         <div className="hero-copy">
           <div className="eyebrow"><span /> PowerShell + WebView2 · Windows 11 · Arquivo único</div>
-          <h1>Windows 11 recém-formatado,<br /><em>pronto pra trabalhar em minutos.</em></h1>
+          <h1>Windows 11 <small>recém-formatado</small>,<br /><em>pronto pra trabalhar em minutos.</em></h1>
           <p className="hero-lede">
             Marque o que quiser instalar — apps, terminal, WSL, SSH, o profile do PowerShell e a suíte Claude Code — revise tudo numa página só, e clique em "Instalar agora". O resto o Genesis faz sozinho.
           </p>
