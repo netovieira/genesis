@@ -238,16 +238,31 @@ function Save-WizardChoices {
 
     $Payload.tasks | ConvertTo-Json | Set-Content -Path $tasksPath -Encoding utf8
 
-    $catalog = @(Get-Content -Raw -Path $wingetPath | ConvertFrom-Json)
+    # NAO envolve o pipe inteiro em @(...) (era "$catalog = @(Get-Content ...
+    # | ConvertFrom-Json)") - "@( A | B )" com B devolvendo um array NAO
+    # desenrola: o array inteiro vira o UNICO item de um novo array externo
+    # ($catalog.Count = 1, $catalog[0] = os 59 apps de verdade). Dai
+    # "foreach ($app in $catalog)" rodava UMA vez so, com $app sendo o
+    # array inteiro - "$app.id" auto-enumerava pra um array de 59 ids (o
+    # -contains nunca batia, $isDefault sempre $false) e "$app | Add-Member"
+    # desenrolava de volta nos 59 objetos reais, entao SEM -Force o primeiro
+    # (que ja tem `default`) estourava "ja existe um membro com esse nome" -
+    # e mesmo COM -Force so mascarava o sintoma: todo app saia com
+    # default=false, silenciosamente. Ler primeiro, DEPOIS castar com
+    # [array] no proprio caminho documentado no resto do arquivo evita o
+    # bug - a atribuicao simples ($catalog = Get-Content ... | ConvertFrom-
+    # Json) ja desenrola certo.
+    $catalog = Get-Content -Raw -Path $wingetPath | ConvertFrom-Json
+    $catalog = [array]$catalog
     $selected = @($Payload.selectedAppIds)
     foreach ($app in $catalog) {
         # hashtable (ConvertFrom-Json -AsHashtable) ou PSCustomObject: os dois
-        # precisam de escrita defensiva, porque um item de catalogo pode nao
-        # ter a propriedade `default` (e ai "$app.default = ..." explode com
-        # "A propriedade 'default' nao foi encontrada" e o install trava).
-        if ($app -is [hashtable]) { $app['default'] = [bool]($selected -contains $app['id']) }
-        elseif ($app.PSObject.Properties['default']) { $app.default = [bool]($selected -contains $app.id) }
-        else { $app | Add-Member -NotePropertyName 'default' -NotePropertyValue ([bool]($selected -contains $app.id)) }
+        # precisam de escrita defensiva. -Force no Add-Member continua aqui
+        # como rede de seguranca (idempotente mesmo se `default` ja existir),
+        # nao pra mascarar o bug acima - esse ja foi corrigido na leitura.
+        $isDefault = [bool]($selected -contains $(if ($app -is [hashtable]) { $app['id'] } else { $app.id }))
+        if ($app -is [hashtable]) { $app['default'] = $isDefault }
+        else { $app | Add-Member -NotePropertyName 'default' -NotePropertyValue $isDefault -Force }
     }
 
     # Apps added on the "Adicionar mais" search screen aren't in the
@@ -277,8 +292,7 @@ function Save-WizardChoices {
     }
     else {
         foreach ($pair in @(@('Mode', $haMode), @('VdiPath', $haVdi), @('BackupPath', $haBackup))) {
-            if ($ha.PSObject.Properties[$pair[0]]) { $ha.($pair[0]) = $pair[1] }
-            else { $ha | Add-Member -NotePropertyName $pair[0] -NotePropertyValue $pair[1] }
+            $ha | Add-Member -NotePropertyName $pair[0] -NotePropertyValue $pair[1] -Force
         }
     }
     $ha | ConvertTo-Json | Set-Content -Path $haPath -Encoding utf8
@@ -363,8 +377,24 @@ function Handle-Message {
             Start-InstalledAppsCheck
         }
         'start-install' {
-            Save-WizardChoices -Payload $Msg.payload
-            Start-InstallRun -Payload $Msg.payload
+            # JS ja pulou pra tela de progresso ("Instalando...") assim que
+            # mandou essa mensagem, antes de saber se isso aqui vai dar
+            # certo (ver startInstall em app.js). Sem esse try/catch, um erro
+            # aqui (Save-WizardChoices ou Start-InstallRun) deixava o
+            # usuario travado nessa tela pra sempre - "Voltar" fica
+            # desabilitado no step 'progress' e nenhum evento de instalacao
+            # nunca chega pra destravar. 'install-start-failed' manda o JS
+            # de volta pra Revisao.
+            try {
+                Save-WizardChoices -Payload $Msg.payload
+                Start-InstallRun -Payload $Msg.payload
+            }
+            catch {
+                [System.Windows.Forms.MessageBox]::Show(
+                    "Nao foi possivel iniciar a instalacao:`n`n$($_.Exception.Message)",
+                    'Genesis', 'OK', 'Error')
+                Send-ToJs -Type 'install-start-failed' -Payload @{}
+            }
         }
         'open-app' {
             $action = $Msg.payload

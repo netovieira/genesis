@@ -478,6 +478,15 @@ function onBridgeMessage(msg) {
       if (el) el.focus();
     }
   }
+  if (msg.type === 'install-start-failed') {
+    // PS ja mostrou o MessageBox com o erro real - aqui so destrava a UI:
+    // sem isso o usuário ficava preso na tela "Instalando..." pra sempre
+    // (Voltar fica desabilitado nesse step e nenhum evento de instalação
+    // chega se o backend nunca chegou a começar).
+    const steps = buildSteps();
+    state.stepIndex = steps.findIndex((s) => s.id === 'review');
+    render();
+  }
   if (msg.type === 'step') {
     state.installResults[msg.payload.key] = msg.payload.status;
     if (!updateStepRow(msg.payload.key, msg.payload.status)) render();

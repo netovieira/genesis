@@ -17,7 +17,11 @@ function Register-BackupTasks {
         return
     }
 
-    $folders = @(Get-Content -Raw -Path $FoldersPath | ConvertFrom-Json)
+    # NAO envolve o pipe inteiro em @(...): "@( A | B )" com B devolvendo
+    # array nao desenrola (vira 1 item = o array inteiro). Le primeiro,
+    # castar [array] depois no proprio valor ja atribuido.
+    $folders = Get-Content -Raw -Path $FoldersPath | ConvertFrom-Json
+    $folders = [array]$folders
     if ($folders.Count -eq 0) {
         Write-Warn2 "Nenhuma pasta configurada pra backup automatico"
         return
