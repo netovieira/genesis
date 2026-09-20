@@ -136,6 +136,15 @@
     "homepage": "https://www.codecguide.com"
   },
   {
+    "id": "OBSProject.OBSStudio",
+    "label": "OBS Studio",
+    "category": "Midia",
+    "default": true,
+    "version": "32.2.2",
+    "updated": "",
+    "homepage": "https://obsproject.com/"
+  },
+  {
     "id": "9WZDNCRFJ3TJ",
     "label": "Netflix",
     "category": "Streaming",
@@ -154,6 +163,24 @@
     "version": "Unknown",
     "updated": "",
     "homepage": "https://www.primevideo.com/"
+  },
+  {
+    "id": "Stremio.Stremio",
+    "label": "Stremio",
+    "category": "Streaming",
+    "default": true,
+    "version": "4.4.181",
+    "updated": "",
+    "homepage": "https://www.stremio.com/"
+  },
+  {
+    "id": "PopcornTime.Popcorn-Time",
+    "label": "Popcorn Time",
+    "category": "Streaming",
+    "default": false,
+    "version": "0.0.153-129",
+    "updated": "",
+    "homepage": "https://github.com/popcorn-official/popcorn-desktop"
   },
   {
     "id": "OpenJS.NodeJS",
