@@ -118,7 +118,7 @@ const TASK_GROUPS = [
   },
   {
     title: 'Ferramentas',
-    keys: ['ClaudeCode', 'PowerShellProfile'],
+    keys: ['ClaudeCode', 'PowerShellProfile', 'NvidiaApp', 'Qoder'],
   },
   {
     title: 'Navegador & Rede',
@@ -140,6 +140,8 @@ const TASK_META = {
   Projects: { label: 'Clonar projetos', desc: 'Cria ~/projects e clona os repositórios configurados.' },
   ClaudeCode: { label: 'Claude Code', desc: 'Instala o Claude Code (irm https://claude.ai/install.ps1).' },
   PowerShellProfile: { label: 'Profile do PowerShell', desc: 'Restaura seu Microsoft.PowerShell_profile.ps1 pessoal.' },
+  NvidiaApp: { label: 'NVIDIA App', desc: 'Instala o app oficial da NVIDIA (drivers e utilitários) — pega a versão mais recente direto do site.' },
+  Qoder: { label: 'Qoder', desc: 'Instala a IDE Qoder (assistida por IA) — pega a versão mais recente direto do site.' },
   DefaultBrowserAndSearch: { label: 'Chrome como padrão', desc: 'Define Chrome como navegador padrão e Google como buscador.' },
   SearchRedirect: { label: 'Busca do Windows → navegador padrão', desc: 'Instala o MSEdgeRedirect pra Search/Widgets/News pararem de forçar o Edge.' },
   Bluetooth: { label: 'Bluetooth auto-reconnect', desc: 'Garante que dispositivos já pareados reconectem sozinhos.' },
