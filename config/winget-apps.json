@@ -109,6 +109,33 @@
     "homepage": "https://www.office.com/"
   },
   {
+    "id": "TheDocumentFoundation.LibreOffice",
+    "label": "LibreOffice",
+    "category": "Comunicacao & Produtividade",
+    "default": true,
+    "version": "26.8.0.3",
+    "updated": "",
+    "homepage": "https://www.libreoffice.org/"
+  },
+  {
+    "id": "ONLYOFFICE.DesktopEditors",
+    "label": "ONLYOFFICE",
+    "category": "Comunicacao & Produtividade",
+    "default": true,
+    "version": "9.4.0",
+    "updated": "",
+    "homepage": "https://www.onlyoffice.com/en/desktop.aspx"
+  },
+  {
+    "id": "Telegram.TelegramDesktop",
+    "label": "Telegram",
+    "category": "Comunicacao & Produtividade",
+    "default": true,
+    "version": "7.2.9",
+    "updated": "",
+    "homepage": "https://desktop.telegram.org/"
+  },
+  {
     "id": "Spotify.Spotify",
     "label": "Spotify",
     "category": "Midia",
@@ -264,6 +291,33 @@
     "homepage": "https://yarnpkg.com/"
   },
   {
+    "id": "LeNgocKhoa.Laragon",
+    "label": "Laragon",
+    "category": "Desenvolvimento",
+    "default": true,
+    "version": "8.7.0",
+    "updated": "",
+    "homepage": "https://laragon.org/"
+  },
+  {
+    "id": "Google.Antigravity",
+    "label": "Antigravity",
+    "category": "Desenvolvimento",
+    "default": true,
+    "version": "2.15.0",
+    "updated": "",
+    "homepage": "https://antigravity.google/"
+  },
+  {
+    "id": "DevToys-app.DevToys",
+    "label": "DevToys",
+    "category": "Desenvolvimento",
+    "default": false,
+    "version": "2.0-preview.9",
+    "updated": "",
+    "homepage": "https://devtoys.app/"
+  },
+  {
     "id": "Docker.DockerDesktop",
     "label": "Docker Desktop",
     "category": "Infraestrutura & Virtualizacao",
@@ -343,6 +397,33 @@
     "version": "3.6.1",
     "updated": "2026-04-06",
     "homepage": "https://github.com/sumatrapdfreader/sumatrapdf"
+  },
+  {
+    "id": "voidtools.Everything",
+    "label": "Everything",
+    "category": "Utilitarios",
+    "default": true,
+    "version": "1.4.1.1032",
+    "updated": "",
+    "homepage": "https://www.voidtools.com/"
+  },
+  {
+    "id": "Bitwarden.Bitwarden",
+    "label": "Bitwarden",
+    "category": "Utilitarios",
+    "default": true,
+    "version": "2026.9.0",
+    "updated": "",
+    "homepage": "https://bitwarden.com/"
+  },
+  {
+    "id": "Rufus.Rufus",
+    "label": "Rufus",
+    "category": "Utilitarios",
+    "default": false,
+    "version": "4.15",
+    "updated": "",
+    "homepage": "https://rufus.ie/"
   },
   {
     "id": "qBittorrent.qBittorrent",
