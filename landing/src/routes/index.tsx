@@ -49,7 +49,7 @@ export const Route = createFileRoute("/")({
 });
 
 const features = [
-  ["Catálogo agrupado por categoria", "68 apps reais via winget, com ícone, versão e descrição — marque o que quiser"],
+  ["Catálogo agrupado por categoria", "61 apps reais via winget, com ícone, versão e descrição — marque o que quiser"],
   ["Apps já instalados ficam travados", "Detecta o que já existe na máquina (winget list) e não deixa desmarcar sem querer"],
   ["Busca ao vivo pra mais apps", "Não achou no catálogo? Busca contra a API do winget.run, com ícone e descrição reais"],
   ["Ponto de restauração antes de tudo", "Se algo der errado, é só voltar — o Windows cuida disso sozinho"],
@@ -131,7 +131,7 @@ function Index() {
           <div className="hero-proof">
             <span><CircleCheck size={16} /> Ponto de restauração antes de tudo</span>
             <span><CircleCheck size={16} /> Pede UAC sozinho, sem instalador</span>
-            <span><CircleCheck size={16} /> 68 apps reais no catálogo</span>
+            <span><CircleCheck size={16} /> 61 apps reais no catálogo</span>
           </div>
         </div>
 
@@ -157,7 +157,7 @@ function Index() {
       <section className="trust-strip" aria-label="Benefícios principais">
         <div className="shell trust-grid">
           <div><strong>17 etapas</strong><span>sistema, apps, dev, Claude Code</span></div>
-          <div><strong>68 apps</strong><span>reais no catálogo, via winget</span></div>
+          <div><strong>61 apps</strong><span>reais no catálogo, via winget</span></div>
           <div><strong>1 clique</strong><span>"Instalar agora" e o resto é sozinho</span></div>
           <div><strong>Zero instalador</strong><span>Genesis.exe é arquivo único</span></div>
         </div>
@@ -224,7 +224,7 @@ function Index() {
           <div className="flow-diagram" aria-label="Fluxo de instalação do Genesis">
             <div className="flow-step"><span className="flow-index">01</span><strong>Ponto de restauração</strong><p>rede de segurança antes de tudo</p></div>
             <ChevronRight className="flow-arrow" />
-            <div className="flow-step"><span className="flow-index">02</span><strong>Catálogo de apps</strong><p>68 apps via winget, marcados por você</p></div>
+            <div className="flow-step"><span className="flow-index">02</span><strong>Catálogo de apps</strong><p>61 apps via winget, marcados por você</p></div>
             <ChevronRight className="flow-arrow" />
             <div className="flow-step"><span className="flow-index">03</span><strong>Sistema & dev</strong><p>WSL, SSH, profile, pasta de projetos</p></div>
             <ChevronRight className="flow-arrow" />
@@ -257,7 +257,7 @@ function Index() {
         </div>
         <div className="mechanism-row">
           <div><Terminal /><strong>Sistema</strong><span>WSL, SSH, profile, restauração</span></div>
-          <div><Download /><strong>Catálogo</strong><span>68 apps reais, agrupados por categoria</span></div>
+          <div><Download /><strong>Catálogo</strong><span>61 apps reais, agrupados por categoria</span></div>
           <div><ShieldCheck /><strong>Você</strong><span>revisa antes de instalar agora</span></div>
         </div>
       </section>

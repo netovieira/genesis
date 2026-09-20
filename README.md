@@ -225,7 +225,7 @@ de `config/winget-apps.json` — sem isso a tela dele fica sem ícone/versão.
 }
 ```
 
-**`config/winget-apps.json`** — 70 apps reais em 12 categorias (Terminal
+**`config/winget-apps.json`** — 61 apps reais em 12 categorias (Terminal
 & Sistema, Navegadores, Comunicação, Produtividade, Mídia, Streaming,
 Desenvolvimento, Infraestrutura & Virtualização, Utilitários, Torrent,
 Acesso Remoto, Jogos). Desligados por padrão: Firefox, Opera, Windhawk,
@@ -277,6 +277,7 @@ via `--recurse-submodules`), `hunteradeck` (pasta local `huntera-launcher`),
 - **Trocar o Raycast**: gerar um novo `.exe` no site oficial e substituir o arquivo.
 - **K-Lite Codec Pack**: instalando a edição Standard; troque por `.Basic`, `.Full` ou `.Mega` se quiser outra.
 - **Trocar a VM do Home Assistant**: só editar `config/home-assistant-vm.json`.
+- **Presets**: arquivo `.gnpreset` (JSON por baixo) com a seleção de apps/etapas. Ficam em `%LOCALAPPDATA%\Genesis\Presets` (criado sozinho na primeira execução, com um `LEIA-ME.txt`); a wizard detecta o que tiver lá na tela inicial, aceita colar o JSON ou arrastar o arquivo, e sugere salvar um novo sempre que a seleção muda em relação ao preset ativo (ver `Handle-Message` em `gui/WizardHost.ps1` e a seção "presets" de `gui/wizard/app.js`).
 - **Adicionar uma etapa nova**: criar o módulo em `modules/`, registrar em `Get-GenesisStepDefinitions` e `Invoke-GenesisPipeline` (`modules/Pipeline.ps1`) — os dois front-ends pegam a mudança sozinhos.
 - **Mudar a interface**: edite `gui/wizard/*` e teste na hora com `.\gui\wizard\dev.ps1` (abre no navegador, instala nada) ou com `.\gui\WizardHost.ps1` (janela real). Como agora o exe embute tudo, rode `.\build.ps1` de novo pra mudança valer no `Genesis.exe`.
 - **Mudar o que entra no exe**: a lista de pastas/arquivos embutidos está em `scripts/build-payload.ps1` (`$includeDirs` / `$includeFiles`) — mudou lá, rode `.\build.ps1`.

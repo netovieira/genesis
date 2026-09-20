@@ -634,6 +634,12 @@ html, body {
   line-height: 1.6;
 }
 
+/* Preview do profile do PowerShell inteiro: mesma caixa do log de
+   instalação, só mais alta pra caber o arquivo sem tanto scroll. */
+.log-panel-tall {
+  height: 420px;
+}
+
 /* ---------- done screen ---------- */
 
 .app-grid {
@@ -807,3 +813,97 @@ html, body {
   .shell { grid-template-columns: 1fr; }
   .sidebar { display: none; }
 }
+
+/* ---------- presets (tela inicial + modal "salvar?") ---------- */
+
+.preset-dropzone {
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 13px;
+  transition: border-color .12s ease, background .12s ease;
+}
+.preset-dropzone.is-drag { border-color: var(--accent); background: var(--bg-elevated-2); color: var(--text); }
+.preset-dropzone strong { color: var(--text); }
+.preset-dropzone .btn { margin-top: 12px; }
+
+.preset-paste {
+  width: 100%;
+  margin-top: 14px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 60px;
+}
+.preset-paste:focus { outline: none; border-color: var(--accent); }
+
+.preset-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.preset-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-inset);
+}
+.preset-row-body { flex: 1; min-width: 0; }
+.preset-row-name { font-weight: 600; }
+.preset-row-meta { color: var(--text-faint); font-size: 12px; margin-top: 2px; }
+
+.preset-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+.preset-banner.is-ok { background: color-mix(in oklab, var(--teal) 14%, transparent); color: var(--teal); border: 1px solid color-mix(in oklab, var(--teal) 30%, transparent); }
+.preset-banner.is-error { background: color-mix(in oklab, var(--danger) 14%, transparent); color: var(--danger); border: 1px solid color-mix(in oklab, var(--danger) 30%, transparent); }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 6, 14, 0.6);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+}
+.modal-card {
+  width: min(420px, calc(100vw - 48px));
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+.modal-card code {
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.modal-input {
+  width: 100%;
+  margin: 16px 0 4px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 13.5px;
+  padding: 10px 12px;
+}
+.modal-input:focus { outline: none; border-color: var(--accent); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }

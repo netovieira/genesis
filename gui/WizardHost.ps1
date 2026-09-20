@@ -10,12 +10,15 @@
       JS -> PS : { type: 'get-config' | 'start-install' | 'open-app'
                         | 'get-launchable' | 'search-apps' | 'browse-folder'
                         | 'browse-file' | 'ensure-projects-folder'
+                        | 'list-presets' | 'load-preset' | 'browse-preset-file'
+                        | 'save-preset'
                         | 'window-close' | 'window-minimize' | 'window-tray'
                         | 'window-drag',
                    payload: <anything the handler needs> }
       PS -> JS : { type: 'config' | 'step' | 'log' | 'done' | 'launchable'
                         | 'search-results' | 'app-status' | 'installed-apps'
-                        | 'browse-result' | 'projects-folder-result',
+                        | 'browse-result' | 'projects-folder-result'
+                        | 'presets-found' | 'preset-loaded' | 'preset-saved',
                    payload: <...> }
 #>
 
@@ -113,6 +116,91 @@ $Root = if ($Global:GenesisPayloadBase64) { Expand-GenesisPayload -ExeDir $ExeDi
 . (Join-Path $Root 'modules\Common.ps1')
 . (Join-Path $Root 'modules\Pipeline.ps1')
 
+# ------------------------------------------------------------------ presets --
+
+# Pasta dedicada, fora do Root: sobrevive a reinstalacao do exe e a extracao
+# pra uma pasta NOVA a cada versao do payload (Expand-GenesisPayload usa
+# %LOCALAPPDATA%\Genesis\app\<hash>, que muda a cada build) - mesmo padrao
+# de %LOCALAPPDATA%\Genesis\WebView2 usado logo abaixo.
+$script:PresetsDir = Join-Path $env:LOCALAPPDATA 'Genesis\Presets'
+$script:PresetExt = '.gnpreset'
+
+function Initialize-PresetsFolder {
+    if (-not (Test-Path $script:PresetsDir)) {
+        New-Item -ItemType Directory -Path $script:PresetsDir -Force | Out-Null
+    }
+    $readme = Join-Path $script:PresetsDir 'LEIA-ME.txt'
+    if (-not (Test-Path $readme)) {
+        @'
+Presets do Genesis
+===================
+
+Coloque aqui arquivos .gnpreset para o assistente identifica-los sozinho na
+tela inicial (se achar mais de um, ele deixa voce escolher qual usar).
+
+Para criar um preset novo: marque os apps/etapas que quiser no assistente
+e, ao clicar em "Instalar agora", ele pergunta se voce quer salvar essa
+combinacao - o arquivo cai automaticamente aqui.
+
+Tambem da pra abrir um preset de qualquer lugar: arraste o arquivo
+.gnpreset para a tela inicial do assistente, cole o conteudo JSON dele
+diretamente, ou use o botao "Procurar arquivo".
+'@ | Set-Content -Path $readme -Encoding utf8
+    }
+}
+
+function Get-PresetSummary {
+    param([string]$Path)
+    try {
+        $data = Get-Content -Raw -Path $Path | ConvertFrom-Json
+        if (-not $data.genesisPreset) { return $null }
+        [pscustomobject]@{
+            fileName  = Split-Path -Leaf $Path
+            name      = if ($data.name) { $data.name } else { [System.IO.Path]::GetFileNameWithoutExtension($Path) }
+            createdAt = $data.createdAt
+            appCount  = @($data.selectedApps).Count
+        }
+    }
+    # Arquivo corrompido/nao-JSON na pasta: ignora em vez de derrubar a
+    # lista inteira - a pasta e livre pra qualquer coisa cair nela.
+    catch { $null }
+}
+
+function Get-PresetsList {
+    if (-not (Test-Path $script:PresetsDir)) { return @() }
+    Get-ChildItem -Path $script:PresetsDir -Filter "*$script:PresetExt" -File |
+        ForEach-Object { Get-PresetSummary -Path $_.FullName } |
+        Where-Object { $_ }
+}
+
+function Get-PresetFileName {
+    param([string]$Name)
+    $safe = ($Name -replace '[^\p{L}\p{N} _-]', '').Trim()
+    if (-not $safe) { $safe = 'preset' }
+    $safe = $safe -replace '\s+', '-'
+    $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+    return "$safe-$stamp$script:PresetExt"
+}
+
+# [array] nos dois campos: mesmo bug de sempre (ver o comentario grande em
+# Get-CurrentConfig) - um preset salvo com EXATAMENTE 1 app ou 1 extra
+# desenrola pra escalar no ConvertFrom-Json, e sem o cast aqui o app.js
+# receberia uma string em vez de array (`new Set("Git.Git")` vira um Set de
+# CADA CARACTERE da string, nao o app inteiro).
+function Get-NormalizedPreset {
+    param($Data)
+    [pscustomobject]@{
+        genesisPreset = $true
+        name          = $Data.name
+        createdAt     = $Data.createdAt
+        selectedApps  = [array]$Data.selectedApps
+        tasks         = $Data.tasks
+        extraApps     = [array]$Data.extraApps
+    }
+}
+
+Initialize-PresetsFolder
+
 # --- WebView2 assemblies (shipped in gui/webview2/, see README) -----------
 $wv2Dir = Join-Path $Root 'gui\webview2'
 Add-Type -Path (Join-Path $wv2Dir 'Microsoft.Web.WebView2.Core.dll')
@@ -203,6 +291,7 @@ function Get-CurrentConfig {
     $projectsFolderPath = Join-Path $Root 'config\projects-folder.json'
     $backupPath = Join-Path $Root 'config\backup-folders.json'
     $presetupPath = Join-Path $Root 'presetup.json'
+    $profileSourcePath = Join-Path $Root 'Microsoft.PowerShell_profile.ps1'
 
     $tasks = Get-Content -Raw -Path $tasksPath | ConvertFrom-Json
     $wingetApps = Get-Content -Raw -Path $wingetPath | ConvertFrom-Json
@@ -211,6 +300,24 @@ function Get-CurrentConfig {
     $projectsFolder = if (Test-Path $projectsFolderPath) { (Get-Content -Raw -Path $projectsFolderPath | ConvertFrom-Json).path } else { '' }
     $backupFolders = if (Test-Path $backupPath) { Get-Content -Raw -Path $backupPath | ConvertFrom-Json } else { @() }
     $stepDefs = Get-GenesisStepDefinitions -Tasks $tasks
+    # Fonte crua do profile, em base64: a etapa "Profile do PowerShell" da
+    # wizard aplica a MESMA regex de Set-UserProfileScript
+    # (modules/Setup-PowerShellProfile.ps1) no JS pra pre-visualizar o
+    # arquivo final sem escrever nada em disco.
+    #
+    # PRECISA ser base64, nao a string crua: ConvertTo-Json do Windows
+    # PowerShell 5.1 serializa esse profile especifico (~70KB, cheio de
+    # ASCII art/caracteres especiais da lockscreen) como
+    # {"profileSource":{"value":"...","Count":N}} em vez de uma string JSON
+    # normal, e o tamanho desse wrapper cresce EXPONENCIALMENTE a cada nivel
+    # de -Depth (confirmado: ~78KB no depth 3, ~2,3MB no depth 6,
+    # OutOfMemoryException no -Depth 8 que o Send-ToJs usa) - a wizard
+    # inteira ficava em branco pra sempre porque o 'config' nunca chegava
+    # no JS. Uma string base64 (so A-Z/a-z/0-9/+//=) nunca aciona esse bug;
+    # app.js decodifica com atob()+TextDecoder antes de usar.
+    $profileSourceB64 = if (Test-Path $profileSourcePath) {
+        [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes((Get-Content -Raw -Path $profileSourcePath)))
+    } else { '' }
 
     # presetup.json is optional and gitignored - it exists only on machines
     # its owner set up, carrying personal values (their own VDI path, their
@@ -245,6 +352,8 @@ function Get-CurrentConfig {
         projectsFolder = $projectsFolder
         backupFolders = [array]$backupFolders
         stepDefs      = [array]$stepDefs
+        profileSourceB64 = $profileSourceB64
+        presetsDir    = $script:PresetsDir
     }
 }
 
@@ -464,6 +573,57 @@ function Handle-Message {
                 Send-ToJs -Type 'browse-result' -Payload @{
                     field = $Msg.payload.field; index = $Msg.payload.index; path = $dialog.FileName
                 }
+            }
+        }
+        'list-presets' {
+            Send-ToJs -Type 'presets-found' -Payload ([array](Get-PresetsList))
+        }
+        'load-preset' {
+            # fileName vem da propria lista que a gente mandou (list-presets)
+            # ou do picker - Split-Path -Leaf descarta qualquer coisa antes
+            # de uma barra que venha nesse campo, pra nunca ler fora de
+            # PresetsDir por acidente.
+            $fileName = Split-Path -Leaf $Msg.payload.fileName
+            $path = Join-Path $script:PresetsDir $fileName
+            try {
+                $data = Get-Content -Raw -Path $path | ConvertFrom-Json
+                Send-ToJs -Type 'preset-loaded' -Payload (Get-NormalizedPreset -Data $data)
+            }
+            catch {
+                Send-ToJs -Type 'preset-loaded' -Payload @{ ok = $false; error = $_.Exception.Message }
+            }
+        }
+        'browse-preset-file' {
+            $dialog = New-Object System.Windows.Forms.OpenFileDialog
+            $dialog.Filter = 'Presets do Genesis (*.gnpreset)|*.gnpreset|Todos os arquivos (*.*)|*.*'
+            if ($dialog.ShowDialog($form) -eq [System.Windows.Forms.DialogResult]::OK) {
+                try {
+                    $data = Get-Content -Raw -Path $dialog.FileName | ConvertFrom-Json
+                    Send-ToJs -Type 'preset-loaded' -Payload (Get-NormalizedPreset -Data $data)
+                }
+                catch {
+                    Send-ToJs -Type 'preset-loaded' -Payload @{ ok = $false; error = $_.Exception.Message }
+                }
+            }
+        }
+        'save-preset' {
+            try {
+                $preset = [pscustomobject]@{
+                    genesisPreset = $true
+                    version       = 1
+                    name          = $Msg.payload.name
+                    createdAt     = (Get-Date).ToString('o')
+                    selectedApps  = [array]$Msg.payload.selectedApps
+                    tasks         = $Msg.payload.tasks
+                    extraApps     = [array]$Msg.payload.extraApps
+                }
+                $fileName = Get-PresetFileName -Name $Msg.payload.name
+                $path = Join-Path $script:PresetsDir $fileName
+                $preset | ConvertTo-Json -Depth 5 | Set-Content -Path $path -Encoding utf8
+                Send-ToJs -Type 'preset-saved' -Payload @{ ok = $true; fileName = $fileName; name = $preset.name }
+            }
+            catch {
+                Send-ToJs -Type 'preset-saved' -Payload @{ ok = $false; error = $_.Exception.Message }
             }
         }
         'window-close' {

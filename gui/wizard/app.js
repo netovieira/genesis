@@ -109,6 +109,12 @@ const APP_DESCRIPTIONS = {
 
 function iconFileName(id) { return id.replace(/[^A-Za-z0-9._-]/g, '_') + '.png'; }
 
+function decodeBase64Utf8(b64) {
+  const binary = atob(b64);
+  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+  return new TextDecoder('utf-8').decode(bytes);
+}
+
 const TASK_GROUPS = [
   {
     title: 'Sistema',
@@ -120,7 +126,7 @@ const TASK_GROUPS = [
   },
   {
     title: 'Ferramentas',
-    keys: ['ClaudeCode', 'PowerShellProfile'],
+    keys: ['ClaudeCode'],
   },
   {
     title: 'Navegador & Rede',
@@ -141,7 +147,6 @@ const TASK_META = {
   GitHubSsh: { label: 'Chave SSH + login no GitHub', desc: 'Gera chave ed25519 e roda gh auth login (único passo que pede confirmação no navegador).' },
   Projects: { label: 'Clonar projetos', desc: 'Cria ~/projects e clona os repositórios configurados.' },
   ClaudeCode: { label: 'Claude Code', desc: 'Instala o Claude Code (irm https://claude.ai/install.ps1).' },
-  PowerShellProfile: { label: 'Profile do PowerShell', desc: 'Restaura seu Microsoft.PowerShell_profile.ps1 pessoal.' },
   DefaultBrowserAndSearch: { label: 'Chrome como padrão', desc: 'Define Chrome como navegador padrão e Google como buscador.' },
   SearchRedirect: { label: 'Busca do Windows → navegador padrão', desc: 'Instala o MSEdgeRedirect pra Search/Widgets/News pararem de forçar o Edge.' },
   Bluetooth: { label: 'Bluetooth auto-reconnect', desc: 'Garante que dispositivos já pareados reconectem sozinhos.' },
@@ -314,6 +319,20 @@ const MOCK_CONFIG = {
   backupFolders: [],
   projects: ['git@github.com:netovieira/myscripts.git'],
   projectsFolder: 'D:\\projects',
+  presetsDir: 'C:\\Users\\exemplo\\AppData\\Local\\Genesis\\Presets',
+  profileSource: [
+    'function goto {',
+    '    param([string]$location)',
+    '    $project_path = $HOME',
+    '    $map = @{',
+    '        "all"  = "$project_path"',
+    '        "avnt" = "$project_path/avnt"',
+    '    }',
+    '    $fullPath = Join-Path $project_path $location',
+    '    Set-Location $fullPath',
+    '}',
+    'Set-Alias g goto',
+  ].join('\n'),
   stepDefs: [
     { key: 'RestorePoint', label: 'Ponto de restauração' },
     { key: 'ExecutionPolicy', label: 'Execution Policy → Bypass' },
@@ -357,6 +376,24 @@ function mockHandle(type, payload) {
   }
   if (type === 'browse-file') {
     setTimeout(() => Bridge._dispatch({ type: 'browse-result', payload: { field: payload.field, index: payload.index, path: 'C:\\exemplo\\arquivo-escolhido.tar' } }), 200);
+  }
+  if (type === 'list-presets') {
+    setTimeout(() => Bridge._dispatch({ type: 'presets-found', payload: [] }), 100);
+  }
+  if (type === 'browse-preset-file') {
+    setTimeout(() => Bridge._dispatch({
+      type: 'preset-loaded',
+      payload: { genesisPreset: true, name: 'Preset de exemplo', selectedApps: ['Google.Chrome', 'Git.Git'], tasks: { ClaudeCode: true }, extraApps: [] },
+    }), 200);
+  }
+  if (type === 'load-preset') {
+    setTimeout(() => Bridge._dispatch({
+      type: 'preset-loaded',
+      payload: { genesisPreset: true, name: 'Preset de exemplo', selectedApps: ['Google.Chrome', 'Git.Git'], tasks: { ClaudeCode: true }, extraApps: [] },
+    }), 200);
+  }
+  if (type === 'save-preset') {
+    setTimeout(() => Bridge._dispatch({ type: 'preset-saved', payload: { ok: true, fileName: 'mock.gnpreset', name: payload.name } }), 200);
   }
 }
 
@@ -421,6 +458,15 @@ const state = {
   installDone: false,
   installReboot: false,
   installLogFile: '',
+  // Presets (ver bindWelcome/applyPreset/snapshotPreset): activePreset e o
+  // "baseline" pra saber se o usuario mexeu em algo desde o ultimo preset
+  // carregado (ou desde os defaults) - onNext no step 'review' compara
+  // contra ele pra decidir se pergunta "salvar como preset?".
+  detectedPresets: [],
+  activePreset: null,
+  presetNotice: '',
+  presetError: '',
+  modal: null,
 };
 
 function buildSteps() {
@@ -431,6 +477,7 @@ function buildSteps() {
   ];
 
   steps.push({ id: 'tasks', group: 'sistema', title: 'Etapas do sistema' });
+  steps.push({ id: 'profile', group: 'sistema', title: 'Profile do PowerShell' });
 
   if (state.tasks.ClaudeCode) {
     steps.push({ id: 'suite', group: 'theroverse', title: 'Theroverse' });
@@ -454,6 +501,13 @@ function init() {
 function onBridgeMessage(msg) {
   if (msg.type === 'config') {
     state.config = msg.payload;
+    // profileSourceB64 -> profileSource: ver o comentario grande em
+    // Get-CurrentConfig (gui/WizardHost.ps1) - ConvertTo-Json do PS 5.1
+    // corrompe esse arquivo (~70KB de ASCII art) se ele viajar como string
+    // crua, entao o PS manda em base64 e aqui e so decodificar de volta.
+    if (msg.payload.profileSourceB64 && !msg.payload.profileSource) {
+      state.config.profileSource = decodeBase64Utf8(msg.payload.profileSourceB64);
+    }
     state.tasks = { ...msg.payload.tasks };
     state.homeAssistant = { mode: 'vm', vdiPath: '', backupPath: '', ...(msg.payload.homeAssistant || {}) };
     state.backupFolders = [...(msg.payload.backupFolders || [])];
@@ -462,7 +516,33 @@ function onBridgeMessage(msg) {
       .map((p) => (typeof p === 'string' ? p : `${p.url} => ${p.name}`))
       .join('\n');
     (msg.payload.wingetApps || []).forEach((a) => { if (a.default) state.selectedApps.add(a.id); });
+    state.activePreset = snapshotPreset('Padrão');
+    Bridge.send('list-presets');
     render();
+  }
+  if (msg.type === 'presets-found') {
+    state.detectedPresets = msg.payload || [];
+    render();
+  }
+  if (msg.type === 'preset-loaded') {
+    if (msg.payload && msg.payload.ok === false) {
+      state.presetError = `Não foi possível abrir o preset: ${msg.payload.error || 'erro desconhecido'}`;
+    } else {
+      applyPreset(msg.payload);
+    }
+    render();
+  }
+  if (msg.type === 'preset-saved') {
+    if (msg.payload && msg.payload.ok === false) {
+      state.presetError = `Não foi possível salvar o preset: ${msg.payload.error || 'erro desconhecido'}`;
+      state.modal = null;
+      render();
+    } else {
+      state.activePreset = snapshotPreset(msg.payload.name);
+      state.presetNotice = `Preset "${msg.payload.name}" salvo.`;
+      Bridge.send('list-presets');
+      resolvePresetModal();
+    }
   }
   if (msg.type === 'browse-result') {
     const { field, index, path } = msg.payload;
@@ -574,6 +654,53 @@ function render() {
   renderSidebar(steps, step);
   renderContent(step);
   renderNav(steps, step);
+  renderModal();
+}
+
+const $modalRoot = document.getElementById('modal-root');
+
+function renderModal() {
+  if (!state.modal) { $modalRoot.innerHTML = ''; return; }
+  if (state.modal.type === 'save-preset') { $modalRoot.innerHTML = viewSavePresetModal(); bindSavePresetModal(); }
+}
+
+function viewSavePresetModal() {
+  const suggested = `Setup ${new Date().toLocaleDateString('pt-BR')}`;
+  return `
+    <div class="modal-overlay" id="modal-overlay">
+      <div class="modal-card">
+        <p class="panel-title">Salvar como preset?</p>
+        <p class="panel-sub">
+          Você marcou ou desmarcou algo desde ${state.activePreset && state.activePreset.name !== 'Padrão' ? `o preset "${escapeHtml(state.activePreset.name)}"` : 'os padrões'}.
+          Dá pra salvar essa combinação de apps e etapas num arquivo <code>${'.gnpreset'}</code> pra reusar da próxima vez.
+        </p>
+        <input type="text" class="modal-input" id="preset-name-input" placeholder="Nome do preset" value="${escapeAttr(suggested)}" />
+        <div class="modal-actions">
+          <button class="btn btn-subtle" id="modal-skip">Não salvar</button>
+          <button class="btn btn-primary" id="modal-save">Salvar e continuar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function bindSavePresetModal() {
+  const $input = document.getElementById('preset-name-input');
+  $input.focus();
+  $input.select();
+  document.getElementById('modal-skip').addEventListener('click', () => resolvePresetModal());
+  document.getElementById('modal-save').addEventListener('click', () => {
+    const name = $input.value.trim() || 'Meu preset';
+    Bridge.send('save-preset', {
+      name,
+      selectedApps: [...state.selectedApps],
+      tasks: state.tasks,
+      extraApps: state.extraApps,
+    });
+  });
+  $input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('modal-save').click();
+    if (e.key === 'Escape') resolvePresetModal();
+  });
 }
 
 function renderSidebar(steps, current) {
@@ -612,10 +739,10 @@ function renderNav(steps, step) {
   $btnSkip.style.display = 'none';
   $btnTray.style.display = 'none';
 
-  if (step.id === 'suite') {
-    // Avançar SEMPRE quer dizer "prosseguir com o thero" (liga de novo se
-    // tinha sido pulado antes - ver onNext); Pular e o unico jeito de
-    // desligar. Rotulo fixo pra nao contradizer esse comportamento.
+  if (step.id === 'suite' || step.id === 'profile') {
+    // Mesmo padrao do thero: Avançar SEMPRE quer dizer "prosseguir com essa
+    // etapa" (liga de novo se tinha sido pulada antes - ver onNext); Pular
+    // e o unico jeito de desligar. Rotulo fixo pra nao contradizer isso.
     $btnSkip.style.display = '';
   }
   if (step.id === 'review') $btnNext.textContent = 'Instalar agora';
@@ -633,16 +760,64 @@ $btnBack.addEventListener('click', () => { state.stepIndex = Math.max(0, state.s
 $btnNext.addEventListener('click', onNext);
 $btnSkip.addEventListener('click', onSkip);
 
+// ----------------------------------------------------------------- presets --
+
+// "Baseline" contra o qual onNext (step 'review') compara a selecao atual,
+// pra saber se pergunta "salvar como preset?" - troca toda vez que um
+// preset e carregado ou salvo (ver onBridgeMessage 'preset-loaded'/
+// 'preset-saved'), comecando pelos defaults assim que o config chega.
+function snapshotPreset(name) {
+  return {
+    name: name || (state.activePreset ? state.activePreset.name : 'Padrão'),
+    selectedApps: [...state.selectedApps].sort(),
+    tasks: { ...state.tasks },
+  };
+}
+
+function presetsDiffer(a, b) {
+  if (!a || !b) return true;
+  if (a.selectedApps.join(',') !== b.selectedApps.join(',')) return true;
+  const keys = new Set([...Object.keys(a.tasks), ...Object.keys(b.tasks)]);
+  for (const k of keys) { if (!!a.tasks[k] !== !!b.tasks[k]) return true; }
+  return false;
+}
+
+function applyPreset(data) {
+  state.selectedApps = new Set(data.selectedApps || []);
+  state.tasks = { ...state.tasks, ...(data.tasks || {}) };
+  state.extraApps = [...(data.extraApps || [])];
+  state.activePreset = snapshotPreset(data.name || 'Preset carregado');
+  state.presetNotice = `Preset "${state.activePreset.name}" carregado.`;
+}
+
+function proceedToInstall() {
+  // Pasta pode nao existir ainda (campo aceita caminho novo) - PS tenta
+  // criar antes; startInstall só roda no 'projects-folder-result' com
+  // ok:true (ver onBridgeMessage). Falhou -> fica na Revisão, PS já
+  // mostrou o erro e o campo recebe foco de volta.
+  Bridge.send('ensure-projects-folder', { path: state.projectsFolder });
+}
+
+// Fecha o modal de "salvar preset?" e retoma a instalacao - chamado tanto
+// no "Não salvar" (direto) quanto depois de 'preset-saved' confirmar.
+function resolvePresetModal() {
+  state.modal = null;
+  render();
+  proceedToInstall();
+}
+
 function onNext() {
   const steps = buildSteps();
   const step = steps[state.stepIndex];
   if (step.id === 'suite') { state.tasks.TheroGlobal = true; }
+  if (step.id === 'profile') { state.tasks.PowerShellProfile = true; }
   if (step.id === 'review') {
-    // Pasta pode nao existir ainda (campo aceita caminho novo) - PS tenta
-    // criar antes; startInstall só roda no 'projects-folder-result' com
-    // ok:true (ver onBridgeMessage). Falhou -> fica na Revisão, PS já
-    // mostrou o erro e o campo recebe foco de volta.
-    Bridge.send('ensure-projects-folder', { path: state.projectsFolder });
+    if (presetsDiffer(snapshotPreset(), state.activePreset)) {
+      state.modal = { type: 'save-preset' };
+      render();
+      return;
+    }
+    proceedToInstall();
     return;
   }
   if (step.id === 'about') { Bridge.send('window-close'); return; }
@@ -654,6 +829,7 @@ function onSkip() {
   const steps = buildSteps();
   const step = steps[state.stepIndex];
   if (step.id === 'suite') { state.tasks.TheroGlobal = false; }
+  if (step.id === 'profile') { state.tasks.PowerShellProfile = false; }
   state.stepIndex = Math.min(steps.length - 1, state.stepIndex + 1);
   render();
 }
@@ -691,7 +867,9 @@ function renderContent(step) {
   if (step.id === 'catalog') { $content.innerHTML = viewCatalog(); bindCatalog(); return; }
   if (step.id === 'search-more') { $content.innerHTML = viewSearchMore(); bindSearchMore(); return; }
   if (step.id === 'suite') { $content.innerHTML = viewSuiteHub(); return; }
+  if (step.id === 'profile') { $content.innerHTML = viewProfilePreview(); return; }
   $content.innerHTML = (renderers[step.id] || viewWelcome)();
+  if (step.id === 'welcome') bindWelcome();
   if (step.id === 'review') bindReview();
   if (step.id === 'done') bindDone();
 }
@@ -715,7 +893,97 @@ function viewWelcome() {
           sozinho até o fim.
         </p>
       </div>
+      ${viewPresetsPanel()}
     </div>`;
+}
+
+// Presets: extensao .gnpreset (JSON por baixo, so o nome do arquivo muda).
+// 3 jeitos de aplicar um preset existente - detectado sozinho na pasta
+// dedicada (%LOCALAPPDATA%\Genesis\Presets), colado aqui, ou arrastado/
+// selecionado manualmente - todos caem em applyPreset(). Salvar um preset
+// NOVO acontece em outro lugar: o modal em onNext (step 'review'), quando a
+// selecao atual difere do baseline (ver presetsDiffer).
+function viewPresetsPanel() {
+  const notice = state.presetNotice
+    ? `<div class="preset-banner is-ok">${ICON_CHECK} ${escapeHtml(state.presetNotice)}</div>` : '';
+  const error = state.presetError
+    ? `<div class="preset-banner is-error">${escapeHtml(state.presetError)}</div>` : '';
+  const detected = state.detectedPresets || [];
+
+  const detectedHtml = detected.length ? `
+    <div class="preset-list">
+      ${detected.map((p) => `
+        <div class="preset-row">
+          <div class="preset-row-body">
+            <div class="preset-row-name">${escapeHtml(p.name)}</div>
+            <div class="preset-row-meta">${p.appCount} app(s)${p.createdAt ? ' · ' + escapeHtml(new Date(p.createdAt).toLocaleDateString('pt-BR')) : ''}</div>
+          </div>
+          <button class="btn btn-ghost" data-load-preset="${escapeAttr(p.fileName)}">Usar</button>
+        </div>
+      `).join('')}
+    </div>` : '';
+
+  return `
+    <div class="panel">
+      <p class="panel-title">Presets</p>
+      <p class="panel-sub">
+        Já tem uma combinação de apps e etapas salva? Carregue um preset <code>.gnpreset</code> aqui —
+        detectado sozinho, colado, arrastado ou escolhido manualmente. Pra criar um novo, marque o
+        que quiser nas próximas telas: no "Instalar agora" o Genesis pergunta se você quer salvar.
+      </p>
+      ${notice}${error}
+      ${detected.length ? `<p class="check-desc" style="margin-bottom:4px">Encontrado${detected.length > 1 ? 's' : ''} em ${escapeHtml(state.config.presetsDir || 'Presets')}:</p>${detectedHtml}` : ''}
+      <div class="preset-dropzone" id="preset-dropzone">
+        <div><strong>Arraste um arquivo .gnpreset aqui</strong></div>
+        <div>ou cole o JSON do preset abaixo</div>
+        <textarea class="preset-paste" id="preset-paste" placeholder="Cole aqui o conteúdo de um preset..."></textarea>
+        <button class="btn btn-ghost" id="preset-browse">Procurar arquivo</button>
+      </div>
+    </div>`;
+}
+
+function bindWelcome() {
+  const $zone = document.getElementById('preset-dropzone');
+  const $paste = document.getElementById('preset-paste');
+  if (!$zone) return;
+
+  ['dragenter', 'dragover'].forEach((evt) => $zone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    $zone.classList.add('is-drag');
+  }));
+  ['dragleave', 'drop'].forEach((evt) => $zone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    $zone.classList.remove('is-drag');
+  }));
+  $zone.addEventListener('drop', async (e) => {
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (!file) return;
+    try { applyPresetJson(await file.text()); }
+    catch { state.presetError = 'Não consegui ler esse arquivo.'; render(); }
+  });
+
+  $paste.addEventListener('paste', () => {
+    // deixa o evento de paste terminar de preencher o textarea antes de ler
+    setTimeout(() => { if ($paste.value.trim()) applyPresetJson($paste.value); }, 0);
+  });
+
+  document.getElementById('preset-browse').addEventListener('click', () => Bridge.send('browse-preset-file'));
+
+  document.querySelectorAll('[data-load-preset]').forEach((el) => {
+    el.addEventListener('click', () => Bridge.send('load-preset', { fileName: el.dataset.loadPreset }));
+  });
+}
+
+function applyPresetJson(text) {
+  state.presetError = '';
+  try {
+    const data = JSON.parse(text);
+    if (!data.genesisPreset) throw new Error('not a preset');
+    applyPreset(data);
+  } catch {
+    state.presetError = 'Isso não parece um preset válido do Genesis.';
+  }
+  render();
 }
 
 // Real content pulled from netovieira.github.io's own source
@@ -1141,6 +1409,38 @@ function bindTasksHandlers(root) {
       render();
     });
   }
+}
+
+// Mesma regex de Set-UserProfileScript (modules/Setup-PowerShellProfile.ps1)
+// portada pro JS - so pra pre-visualizar, o arquivo real ainda e escrito
+// pelo PS na hora de instalar.
+function renderProfileContent(source, projectsPath) {
+  if (!projectsPath) return source;
+  const escaped = projectsPath.replace(/'/g, "''");
+  return source.replace(/^[ \t]*\$project_path[ \t]*=[ \t]*\$HOME[ \t]*$/m, `    $project_path = '${escaped}'`);
+}
+
+// Etapa dedicada so pra deixar claro, ANTES de instalar, exatamente o que
+// vai virar o $PROFILE do usuario - mesmo padrao do step 'suite' (thero):
+// Avançar prossegue (liga PowerShellProfile), Pular desliga - ver
+// renderNav/onNext/onSkip.
+function viewProfilePreview() {
+  const source = state.config.profileSource || '';
+  const content = renderProfileContent(source, state.projectsFolder);
+  const on = state.tasks.PowerShellProfile !== false;
+  return `
+    <div class="screen">
+      <h1 class="screen-kicker-free-title">Profile do <span class="text-gradient">PowerShell</span></h1>
+      <p class="screen-lede">
+        Isso substitui o seu <code>$PROFILE</code> (Windows PowerShell e PowerShell 7) por este arquivo.
+        ${state.projectsFolder ? `O <code>goto</code>/<code>g</code> já sai apontando pra <code>${escapeHtml(state.projectsFolder)}</code> — o mesmo valor da Pasta de projetos.` : 'Sem uma Pasta de projetos definida ainda, o <code>goto</code>/<code>g</code> mantém o padrão do profile (<code>$HOME</code>).'}
+        ${on ? '' : ' Etapa pulada — nenhum arquivo será tocado.'}
+      </p>
+      <div class="panel">
+        <p class="panel-title">Conteúdo final</p>
+        <div class="log-panel log-panel-tall">${escapeHtml(content)}</div>
+      </div>
+    </div>`;
 }
 
 // Uma tela so pras 3 ferramentas (antes eram 3 telas separadas), reproduzindo
