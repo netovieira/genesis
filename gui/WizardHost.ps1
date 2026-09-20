@@ -150,7 +150,16 @@ function Show-GenesisWindow {
     $form.Activate()
     $script:trayIcon.Visible = $false
 }
+# Click esquerdo (comportamento padrao) E duplo-clique (habito comum em
+# icone de bandeja) restauram a janela; menu do botao direito tambem, pra
+# quem prefere clicar com o direito em vez de clicar direto no icone.
 $script:trayIcon.Add_Click({ Show-GenesisWindow })
+$script:trayIcon.Add_DoubleClick({ Show-GenesisWindow })
+$trayMenu = New-Object System.Windows.Forms.ContextMenuStrip
+$trayMenuOpen = New-Object System.Windows.Forms.ToolStripMenuItem('Abrir Genesis')
+$trayMenuOpen.Add_Click({ Show-GenesisWindow })
+[void]$trayMenu.Items.Add($trayMenuOpen)
+$script:trayIcon.ContextMenuStrip = $trayMenu
 $form.Add_FormClosing({ $script:trayIcon.Visible = $false })
 $form.Add_FormClosed({ $script:trayIcon.Dispose() })
 
@@ -460,6 +469,15 @@ function Handle-Message {
         'window-minimize' { $form.WindowState = 'Minimized' }
         'window-tray' {
             $script:trayIcon.Visible = $true
+            # Primeiro icone de bandeja que o Genesis mostra nesta maquina:
+            # o Windows costuma jogar icone novo direto no overflow ("^" /
+            # icones ocultos), nao na barra visivel - sem aviso, some sem
+            # rastro nenhum. O balloon aparece flutuando perto da bandeja
+            # (ou do "^") independente de estar visivel ou escondido.
+            try {
+                $script:trayIcon.ShowBalloonTip(6000, 'Genesis', 'Instalando em segundo plano. Clique no icone (pode estar em "Mostrar icones ocultos", a seta ^ perto do relogio) pra abrir de novo.', [System.Windows.Forms.ToolTipIcon]::Info)
+            }
+            catch { }
             $form.Hide()
         }
         'window-drag' {
