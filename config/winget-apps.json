@@ -65,7 +65,7 @@
   {
     "id": "9NBDXK71NK08",
     "label": "WhatsApp Beta",
-    "category": "Comunicacao & Produtividade",
+    "category": "Comunicacao",
     "default": true,
     "source": "msstore",
     "version": "Unknown",
@@ -75,7 +75,7 @@
   {
     "id": "Discord.Discord",
     "label": "Discord",
-    "category": "Comunicacao & Produtividade",
+    "category": "Comunicacao",
     "default": true,
     "version": "1.0.9258",
     "updated": "2026-09-14",
@@ -84,7 +84,7 @@
   {
     "id": "Notion.Notion",
     "label": "Notion",
-    "category": "Comunicacao & Produtividade",
+    "category": "Produtividade",
     "default": true,
     "version": "7.34.0",
     "updated": "2026-09-14",
@@ -93,7 +93,7 @@
   {
     "id": "Obsidian.Obsidian",
     "label": "Obsidian",
-    "category": "Comunicacao & Produtividade",
+    "category": "Produtividade",
     "default": true,
     "version": "1.13.7",
     "updated": "2026-08-12",
@@ -102,7 +102,7 @@
   {
     "id": "Microsoft.Office",
     "label": "Microsoft Office",
-    "category": "Comunicacao & Produtividade",
+    "category": "Produtividade",
     "default": true,
     "version": "16.0.20228.20124",
     "updated": "2026-08-11",
@@ -111,8 +111,8 @@
   {
     "id": "TheDocumentFoundation.LibreOffice",
     "label": "LibreOffice",
-    "category": "Comunicacao & Produtividade",
-    "default": true,
+    "category": "Produtividade",
+    "default": false,
     "version": "26.8.0.3",
     "updated": "",
     "homepage": "https://www.libreoffice.org/"
@@ -120,8 +120,8 @@
   {
     "id": "ONLYOFFICE.DesktopEditors",
     "label": "ONLYOFFICE",
-    "category": "Comunicacao & Produtividade",
-    "default": true,
+    "category": "Produtividade",
+    "default": false,
     "version": "9.4.0",
     "updated": "",
     "homepage": "https://www.onlyoffice.com/en/desktop.aspx"
@@ -129,8 +129,8 @@
   {
     "id": "Telegram.TelegramDesktop",
     "label": "Telegram",
-    "category": "Comunicacao & Produtividade",
-    "default": true,
+    "category": "Comunicacao",
+    "default": false,
     "version": "7.2.9",
     "updated": "",
     "homepage": "https://desktop.telegram.org/"

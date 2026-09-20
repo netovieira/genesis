@@ -12,7 +12,8 @@ const ICON_SPARKLE = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 
 const CATEGORY_COLORS = {
   'Terminal & Sistema': '#22d3ee',
   'Navegadores': '#8b5cf6',
-  'Comunicacao & Produtividade': '#2dd9b9',
+  'Comunicacao': '#2dd9b9',
+  'Produtividade': '#34d399',
   'Midia': '#fbbf5b',
   'Streaming': '#f472b6',
   'Desenvolvimento': '#60a5fa',
@@ -26,7 +27,8 @@ const CATEGORY_COLORS = {
 const CATEGORY_LABELS = {
   'Terminal & Sistema': 'Terminal & Sistema',
   'Navegadores': 'Navegadores',
-  'Comunicacao & Produtividade': 'Comunicação & Produtividade',
+  'Comunicacao': 'Comunicação',
+  'Produtividade': 'Produtividade',
   'Midia': 'Mídia',
   'Streaming': 'Streaming',
   'Desenvolvimento': 'Desenvolvimento',
@@ -529,11 +531,16 @@ const $sidebar = document.getElementById('sidebar');
 const $content = document.getElementById('content');
 const $btnBack = document.getElementById('btn-back');
 const $btnSkip = document.getElementById('btn-skip');
+const $btnTray = document.getElementById('btn-tray');
 const $btnNext = document.getElementById('btn-next');
 const $navStatus = document.getElementById('navbar-status');
 
-document.getElementById('btn-close').addEventListener('click', () => Bridge.send('window-close'));
+// Fechar pelo X sempre confirma (pode ter instalação rodando); o "Fechar"
+// do fim do fluxo (onNext, step 'about') é intencional e não confirma - ver
+// o payload {confirm:true} que só o X manda.
+document.getElementById('btn-close').addEventListener('click', () => Bridge.send('window-close', { confirm: true }));
 document.getElementById('btn-min').addEventListener('click', () => Bridge.send('window-minimize'));
+$btnTray.addEventListener('click', () => Bridge.send('window-tray'));
 
 // WebView2 doesn't support the Electron-only -webkit-app-region CSS, so
 // dragging the borderless host window is wired here: mousedown on the
@@ -589,6 +596,7 @@ function renderNav(steps, step) {
   $btnNext.disabled = false;
   $btnNext.textContent = 'Avançar';
   $btnSkip.style.display = 'none';
+  $btnTray.style.display = 'none';
 
   if (step.id === 'suite') {
     // Avançar SEMPRE quer dizer "prosseguir com o thero" (liga de novo se
@@ -597,7 +605,10 @@ function renderNav(steps, step) {
     $btnSkip.style.display = '';
   }
   if (step.id === 'review') $btnNext.textContent = 'Instalar agora';
-  if (step.id === 'progress') { $btnNext.disabled = true; $btnNext.textContent = 'Instalando…'; $btnBack.disabled = true; }
+  if (step.id === 'progress') {
+    $btnNext.disabled = true; $btnNext.textContent = 'Instalando…'; $btnBack.disabled = true;
+    $btnTray.style.display = '';
+  }
   if (step.id === 'done') { $btnNext.textContent = 'Avançar'; $btnBack.disabled = true; }
   if (step.id === 'about') { $btnNext.textContent = 'Fechar'; }
 

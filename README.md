@@ -202,8 +202,12 @@ WebView2. O fluxo:
    hardcoded — aceita caminho que ainda não existe, ele é criado ao
    avançar; falha de criação mostra um dialog de erro e devolve o foco
    pro campo) e a lista de repositórios a clonar.
-7. **Instalação** (progresso ao vivo) e **Concluído** (botões pra abrir
-   os apps recém-instalados).
+7. **Instalação** (progresso ao vivo) — nessa etapa aparece o botão
+   **"Minimizar para o tray"** (ao lado do "Voltar"): esconde a janela e
+   mostra um ícone na bandeja do Windows; quando a instalação termina, a
+   janela volta sozinha. Fechar pelo **X** da titlebar sempre pede
+   confirmação (o "Fechar" do fim do fluxo, não).
+8. **Concluído** (botões pra abrir os apps recém-instalados).
 
 Testar sem instalar nada: `.\gui\wizard\dev.ps1` abre a página direto num
 navegador comum. O `app.js` detecta que não está dentro do WebView2
@@ -229,13 +233,14 @@ de `config/winget-apps.json` — sem isso a tela dele fica sem ícone/versão.
 }
 ```
 
-**`config/winget-apps.json`** — 47 apps reais em 11 categorias (Terminal
-& Sistema, Navegadores, Comunicação & Produtividade, Mídia, Streaming,
+**`config/winget-apps.json`** — 68 apps reais em 12 categorias (Terminal
+& Sistema, Navegadores, Comunicação, Produtividade, Mídia, Streaming,
 Desenvolvimento, Infraestrutura & Virtualização, Utilitários, Torrent,
 Acesso Remoto, Jogos). Desligados por padrão: Firefox, Opera, Windhawk,
-Insomnia, Yarn, SumatraPDF, AnyDesk, TeamViewer, Steam, Epic Games
-Launcher, Battle.net, EA App, CurseForge, Thunderstore (r2modman),
-Transmission, Deluge, Amazon Prime Video. Tudo o mais vem marcado.
+LibreOffice, ONLYOFFICE, Telegram, Insomnia, Yarn, DevToys, Rufus,
+SumatraPDF, Popcorn Time, AnyDesk, TeamViewer, Steam, Epic Games Launcher,
+Battle.net, EA App, CurseForge, Thunderstore (r2modman), Transmission,
+Deluge, Amazon Prime Video. Tudo o mais vem marcado.
 
 **`config/projects.json`**: `myscripts` (traz `thero`/`athena`/`zeus` juntos
 via `--recurse-submodules`), `hunteradeck` (pasta local `huntera-launcher`),

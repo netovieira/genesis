@@ -11,6 +11,15 @@
         ],
         "createdAt": "2026-09-20T07:04:11.320Z",
         "reason": "pre-existing .text-gradient class, app's established signature motif tied to Genesis's own icon gradient (genesis-icon-app.svg) - used consistently across every screen's key heading word, not decorative filler added by this session"
+      },
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "gui/wizard/index.html"
+        ],
+        "createdAt": "2026-09-20T07:56:06.405Z",
+        "reason": "pre-existing .text-gradient usage (Genesis title), same established signature motif as style.css - not introduced by this session's edits"
       }
     ]
   }

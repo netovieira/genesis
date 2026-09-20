@@ -8,10 +8,14 @@
 
     Message protocol (JSON, one object per message):
       JS -> PS : { type: 'get-config' | 'start-install' | 'open-app'
-                        | 'get-launchable' | 'window-close' | 'window-minimize'
+                        | 'get-launchable' | 'search-apps' | 'browse-folder'
+                        | 'browse-file' | 'ensure-projects-folder'
+                        | 'window-close' | 'window-minimize' | 'window-tray'
                         | 'window-drag',
                    payload: <anything the handler needs> }
-      PS -> JS : { type: 'config' | 'step' | 'log' | 'done' | 'launchable',
+      PS -> JS : { type: 'config' | 'step' | 'log' | 'done' | 'launchable'
+                        | 'search-results' | 'app-status' | 'installed-apps'
+                        | 'browse-result' | 'projects-folder-result',
                    payload: <...> }
 #>
 
@@ -131,6 +135,24 @@ $form.StartPosition = 'CenterScreen'
 $form.FormBorderStyle = 'None'
 $form.BackColor = [System.Drawing.Color]::FromArgb(10, 14, 26)
 $form.Add_Shown({ [NativeDrag]::RoundCorners($form.Handle) })
+
+# --- bandeja (tray) ---------------------------------------------------------
+# "Minimizar para o tray" (so aparece durante a instalacao, ver app.js) -
+# esconde a janela inteira e mostra um icone no tray; qualquer clique nele
+# (ou o fim da instalacao, no timer 'Done' mais abaixo) restaura a janela.
+$script:trayIcon = New-Object System.Windows.Forms.NotifyIcon
+$script:trayIcon.Icon = if ($form.Icon) { $form.Icon } else { [System.Drawing.SystemIcons]::Application }
+$script:trayIcon.Text = 'Genesis - instalando...'
+$script:trayIcon.Visible = $false
+function Show-GenesisWindow {
+    $form.Show()
+    $form.WindowState = 'Normal'
+    $form.Activate()
+    $script:trayIcon.Visible = $false
+}
+$script:trayIcon.Add_Click({ Show-GenesisWindow })
+$form.Add_FormClosing({ $script:trayIcon.Visible = $false })
+$form.Add_FormClosed({ $script:trayIcon.Dispose() })
 
 $webView = New-Object Microsoft.Web.WebView2.WinForms.WebView2
 $webView.Dock = 'Fill'
@@ -311,7 +333,17 @@ function Send-ToJs {
     # 5.1's ConvertTo-Json mangles a bare array into {"value":...,"Count":N}.
     # Doing the cast here once protects every caller instead of relying on
     # each call site to remember it.
-    if ($Payload -is [array] -or $Payload -is [System.Collections.ICollection]) {
+    #
+    # -isnot IDictionary e essencial: Hashtable (o -Payload @{...} que quase
+    # todo call site usa) TAMBEM implementa ICollection, entao sem essa
+    # exclusao um payload como @{ ok = $true } virava [{"ok":true}] (array
+    # de 1 item) em vez de {"ok":true} - e no JS `msg.payload.ok` some
+    # (undefined, sempre falso) porque payload virou array, nao objeto.
+    # Confirmado: isso quebrava 'projects-folder-result' (o campo da pasta
+    # de projetos ficava preso em loop de refoco) e, em tese, qualquer outro
+    # Send-ToJs com Hashtable de 1 propriedade so - o bug so nao aparecia
+    # antes porque o preview mock (dev.ps1) nunca passa por essa funcao.
+    if (($Payload -is [array] -or $Payload -is [System.Collections.ICollection]) -and $Payload -isnot [System.Collections.IDictionary]) {
         $Payload = [array]$Payload
     }
     $msg = @{ type = $Type; payload = $Payload } | ConvertTo-Json -Depth 8 -Compress
@@ -383,8 +415,23 @@ function Handle-Message {
                 }
             }
         }
-        'window-close' { $form.Close() }
+        'window-close' {
+            # X da titlebar manda {confirm:true}; o "Fechar" do fim do fluxo
+            # nao manda nada (fecha direto, sem perguntar - ja e uma acao
+            # deliberada no ultimo passo).
+            if ($Msg.payload -and $Msg.payload.confirm) {
+                $result = [System.Windows.Forms.MessageBox]::Show(
+                    $form, 'Tem certeza que quer fechar o Genesis?', 'Genesis',
+                    'YesNo', 'Question')
+                if ($result -ne [System.Windows.Forms.DialogResult]::Yes) { return }
+            }
+            $form.Close()
+        }
         'window-minimize' { $form.WindowState = 'Minimized' }
+        'window-tray' {
+            $script:trayIcon.Visible = $true
+            $form.Hide()
+        }
         'window-drag' {
             [NativeDrag]::ReleaseCapture() | Out-Null
             [NativeDrag]::SendMessage($form.Handle, [NativeDrag]::WM_NCLBUTTONDOWN, [NativeDrag]::HTCAPTION, 0) | Out-Null
@@ -553,6 +600,9 @@ $timer.Add_Tick({
                 Send-ToJs -Type 'done' -Payload @{ reboot = [bool]$item.Reboot; logFile = $item.LogFile }
                 if ($script:installPs) { $script:installPs.Dispose() }
                 if ($script:installRunspace) { $script:installRunspace.Close() }
+                # Instalacao terminou - se o usuario tinha minimizado pro
+                # tray, mostra a janela de volta sozinho.
+                if ($script:trayIcon.Visible) { Show-GenesisWindow }
             }
             'SearchResults' { Send-ToJs -Type 'search-results' -Payload $item.Results }
             'App' { Send-ToJs -Type 'app-status' -Payload @{ id = $item.Id; status = $item.Status } }
