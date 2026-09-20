@@ -11,7 +11,7 @@ Referência completa do projeto: o que existe, pra que serve, e todos os
 comandos. Leia isto antes de formatar de novo ou de mexer em qualquer
 coisa — não precisa abrir cada arquivo pra lembrar como funciona.
 
-**Baixar sem compilar**: [Releases](https://github.com/netovieira/genesis/releases)
+**Baixar sem compilar**: [Releases](https://github.com/theroverse/genesis/releases)
 — pegue o `Genesis.exe` da versão mais recente.
 
 ## Comandos rápidos

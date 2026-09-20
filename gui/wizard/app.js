@@ -199,9 +199,12 @@ const SUITE_CONTENT = {
   },
   zeus: {
     name: 'Zeus',
-    color: '#EAB308',
-    colorSecondary: '#CA8A04',
-    colorAccent: '#FDE047',
+    // Era #EAB308 (amarelo-ouro) - hue proximo demais do laranja do thero
+    // (#F97316) a distancia de olhar rapido. Lima eletrico (mesma troca
+    // feita em theroverse/src/data/ecosystem.ts) fica inconfundivel.
+    color: '#A3E635',
+    colorSecondary: '#65A30D',
+    colorAccent: '#D9F99D',
     version: '0.1.0',
     updated: '18/09/2026',
     role: 'habitante',
@@ -723,9 +726,9 @@ const PORTFOLIO_PROJECTS = [
     href: 'https://www.meuwatt.com.br/',
   },
   {
-    name: 'Mouraverse', category: 'IA corporativa · Knowledge systems', image: 'assets/project-mouraverse.jpg',
-    statement: 'Memória hierárquica para dar contexto real a sistemas de inteligência artificial — o mesmo princípio que depois inspirou Athena e Zeus.',
-    href: null,
+    name: 'Thero', category: 'Ferramentas para devs · Open source', image: 'assets/thero-system.jpg',
+    statement: 'Claude Code preparado para trabalho sério desde o primeiro comando.',
+    href: 'https://netovieira.github.io/thero/',
   },
   {
     name: 'Nexo', category: 'IA local · Open source', image: 'assets/project-nexo.jpg',

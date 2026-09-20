@@ -107,7 +107,7 @@ motion budget goes to feedback, not spectacle.
 
 Two raster assets ship, both real product artifacts, not generated: 
 `gui/wizard/assets/thero-mark.png` and `thero-system.jpg`, copied verbatim
-from `netovieira/thero`'s own landing page (`landing/src/assets/`) — the
+from `theroverse/thero`'s own landing page (`landing/src/assets/`) — the
 actual logo and an actual product screenshot, not stock art or an AI
 generation standing in for either. Athena and Zeus have no equivalent
 real screenshot yet (see `docs/design-assets-prompts.md` §3), so their
